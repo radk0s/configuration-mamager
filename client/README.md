@@ -1,6 +1,3 @@
-
-# DIRadar (diradar)
-
 > ...
 
 ## Running your project
