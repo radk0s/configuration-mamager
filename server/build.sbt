@@ -12,7 +12,9 @@ libraryDependencies ++= Seq(
   javaJdbc,
   javaEbean,
   cache,
-  "ws.securesocial" % "securesocial_2.10" % "2.1.4"
+  "ws.securesocial" % "securesocial_2.10" % "2.1.4",
+  "mysql" % "mysql-connector-java" % "5.1.18",
+  "com.google.inject" % "guice" % "3.0"
 )
 
 playScalaSettings
