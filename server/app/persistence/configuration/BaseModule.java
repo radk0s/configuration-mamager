@@ -1,18 +1,20 @@
 package persistence.configuration;
 
-import persistence.dao.UserDao;
-import persistence.dao.impl.UserDaoImpl;
-import persistence.services.UserPersistenceService;
-import persistence.services.impl.UserPersistenceServiceImpl;
+import com.google.inject.TypeLiteral;
+import controllers.ssControllers.LocalRuntimeEnvironment;
+import controllers.ssControllers.LocalSecured;
+import persistence.model.User;
 
 import com.google.inject.AbstractModule;
+import securesocial.core.RuntimeEnvironment;
+import securesocial.core.java.Secured;
 
 public class BaseModule extends AbstractModule{
 
 	@Override
 	protected void configure() {
-		bind(UserDao.class).to(UserDaoImpl.class);
-		bind(UserPersistenceService.class).to(UserPersistenceServiceImpl.class);
+		bind(new TypeLiteral<RuntimeEnvironment<User>>(){}).to(LocalRuntimeEnvironment.class);
+		bind(Secured.class).to(LocalSecured.class);
 	}
 
 }

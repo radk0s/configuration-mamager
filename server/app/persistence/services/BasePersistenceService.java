@@ -4,8 +4,9 @@ import java.util.List;
 
 import persistence.filters.Filter;
 import persistence.model.AbstractEntity;
+import play.db.ebean.Model;
 
-public interface BasePersistenceService<T extends AbstractEntity> {
+public interface BasePersistenceService<T extends Model> {
 	void save(T entity);
 
 	void delete(T entity);

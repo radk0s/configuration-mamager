@@ -1,39 +1,89 @@
 package persistence.model;
 
-import javax.persistence.Entity;
+import play.db.ebean.Model;
 
-import com.google.common.hash.HashCode;
-import com.google.common.hash.HashFunction;
-import com.google.common.hash.Hashing;
+import javax.persistence.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
-public class User extends AbstractEntity {
+@Table(name = "USERS")
+public class User extends Model {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private String login;
-	private int passwordMd5;
+    @Id
+    @Column(name = "ID")
+    private String id;
 
-	public static int calculateMd5(String password) {
-		HashFunction hf = Hashing.md5();
-		HashCode hc = hf.newHasher().putString(password)
-		.hash();
-		return hc.asInt();
-	}
+    @Column(name = "EMAIL")
+    private String email;
 
-	public String getLogin() {
-		return login;
-	}
+    @Column(name = "PASSWORD")
+    private String password;
 
-	public void setLogin(String login) {
-		this.login = login;
-	}
+    @Column(name = "PROVIDER")
+    private String provider;
 
-	public int getPasswordMd5() {
-		return passwordMd5;
-	}
+    @Column(name = "FIRST_NAME")
+    private String firstName;
 
-	public void setPasswordMd5(int passwordMd5) {
-		this.passwordMd5 = passwordMd5;
-	}
+    @Column(name = "LAST_NAME")
+    private String lastName;
+
+    public static Finder<String, User> find = new Finder<String, User> (String.class, User.class);
+
+
+    public static User findByEmail(String email) {
+        return find.where().eq("email", email).findUnique();
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 }

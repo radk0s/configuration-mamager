@@ -8,6 +8,7 @@ import persistence.dao.BaseDao;
 import persistence.filters.Filter;
 import persistence.filters.Pair;
 import persistence.model.AbstractEntity;
+import play.db.ebean.Model;
 import play.db.ebean.Model.Finder;
 
 import com.avaje.ebean.Ebean;
@@ -15,7 +16,7 @@ import com.avaje.ebean.Expr;
 import com.avaje.ebean.Expression;
 import com.avaje.ebean.Query;
 
-public abstract class BaseDaoImpl<T extends AbstractEntity> implements BaseDao<T> {
+public abstract class BaseDaoImpl<T extends Model> implements BaseDao<T> {
 
 	private Class<T> clazz;
 	protected Finder<Long, T> find;
@@ -24,14 +25,6 @@ public abstract class BaseDaoImpl<T extends AbstractEntity> implements BaseDao<T
 		this.clazz = clazz;
 		find = new Finder<Long, T>(Long.class, clazz);
 
-	}
-
-	@Override
-	public void save(T entity) {
-		if (entity.getId() != null)
-			Ebean.update(entity);
-		else
-			Ebean.save(entity);
 	}
 
 	@Override

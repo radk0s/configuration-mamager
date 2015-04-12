@@ -8,9 +8,10 @@ import persistence.dao.BaseDao;
 import persistence.filters.Filter;
 import persistence.model.AbstractEntity;
 import persistence.services.BasePersistenceService;
+import play.db.ebean.Model;
 
 @Transactional
-public abstract class BasePersistenceServiceImpl<T extends AbstractEntity> implements BasePersistenceService<T>{
+public abstract class BasePersistenceServiceImpl<T extends Model> implements BasePersistenceService<T>{
 	protected abstract BaseDao<T> getBaseDao();
 
 	@Override

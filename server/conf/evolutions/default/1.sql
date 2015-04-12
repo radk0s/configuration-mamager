@@ -3,11 +3,23 @@
 
 # --- !Ups
 
-create table user (
-  id                        bigint auto_increment not null,
-  login                     varchar(255),
-  password_md5              integer,
-  constraint pk_user primary key (id))
+create table TOKENS (
+  uuid                      varchar(255) not null,
+  email                     varchar(255),
+  created_at                datetime,
+  expire_at                 datetime,
+  is_sign_up                tinyint(1) default 0,
+  constraint pk_TOKENS primary key (uuid))
+;
+
+create table USERS (
+  ID                        varchar(255) not null,
+  EMAIL                     varchar(255),
+  PASSWORD                  varchar(255),
+  PROVIDER                  varchar(255),
+  FIRST_NAME                varchar(255),
+  LAST_NAME                 varchar(255),
+  constraint pk_USERS primary key (ID))
 ;
 
 
@@ -15,9 +27,11 @@ create table user (
 
 # --- !Downs
 
-SET REFERENTIAL_INTEGRITY FALSE;
+SET FOREIGN_KEY_CHECKS=0;
 
-drop table if exists user;
+drop table if EXISTS TOKENS;
 
-SET REFERENTIAL_INTEGRITY TRUE;
+drop table if EXISTS USERS;
+
+SET FOREIGN_KEY_CHECKS=1;
 

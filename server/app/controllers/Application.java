@@ -2,19 +2,23 @@ package controllers;
 
 import com.google.inject.Inject;
 
-import persistence.dao.UserDao;
+import controllers.ssControllers.LocalRuntimeEnvironment;
 import persistence.model.User;
-import persistence.services.UserPersistenceService;
-import persistence.services.impl.UserPersistenceServiceImpl;
-import play.*;
 import play.mvc.*;
 import securesocial.core.java.SecureSocial;
-import views.html.*;
+import securesocial.core.java.SecuredAction;
 
 public class Application extends Controller {
 
-	@SecureSocial.SecuredAction
+	@Inject
+	private LocalRuntimeEnvironment env;
+
+
+	@SecuredAction
 	public Result index() {
-		return ok(index.render("Your new application is ready."));
+		User user = (User) ctx().args.get(SecureSocial.USER_KEY);
+		final String userName = user!=null? user.getId() : "guest";
+		return ok("Hello "+userName);
 	}
+
 }
