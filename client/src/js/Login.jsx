@@ -1,3 +1,4 @@
+const React = require('react');
 const auth = require('./Auth.js');
 
 class Login extends React.Component {

@@ -13,3 +13,10 @@ dist
 /.project
 /RUNNING_PID
 /.settings
+
+
+bower_components/
+dist/
+node_modules/
+npm-debug.log
+

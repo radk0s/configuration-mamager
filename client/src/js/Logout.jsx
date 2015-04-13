@@ -1,4 +1,5 @@
-var auth = require("./Auth.js");
+const React = require('react');
+const auth = require("./Auth.js");
 
 class Logout extends React.Component {
   componentDidMount () {
@@ -10,4 +11,4 @@ class Logout extends React.Component {
   }
 }
 
-module.exports = About;
+module.exports = Logout;

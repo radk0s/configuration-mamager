@@ -1,3 +1,5 @@
+const React = require('react');
+
 module.exports = {
   login (email, pass, cb) {
     cb = arguments[arguments.length - 1];
@@ -6,7 +8,7 @@ module.exports = {
       this.onChange(true);
       return;
     }
-    this.pretendRequest(email, pass, (res) => {
+    pretendRequest(email, pass, (res) => {
       if (res.authenticated) {
         localStorage.token = res.token;
         if (cb) cb(true);
@@ -32,11 +34,11 @@ module.exports = {
     return !!localStorage.token;
   },
 
-  onChange() {
-
+  onChange()
   },
-  requireAuth(Component) => {
-    class Authenticated extends React.Component {
+  requireAuth(Component) {
+    let auth = this;
+    return class Authenticated extends React.Component {
       static willTransitionTo(transition) {
         if (!auth.loggedIn()) {
           transition.redirect('/login', {}, {'nextPath' : transition.path});
