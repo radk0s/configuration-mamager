@@ -17,9 +17,10 @@ class Signup extends React.Component {
     var nextPath = router.getCurrentQuery().nextPath;
     var email = this.refs.email.getDOMNode().value;
     var pass = this.refs.pass.getDOMNode().value;
-    var firstName = this.refs.firstName.getDOMNode().value;
-    var lastName = this.refs.lastName.getDOMNode().value;
-    auth.register(email, pass, firstName, lastName, (registration) => {
+    var DOToken = this.refs.DOToken.getDOMNode().value;
+    var AWSToken = this.refs.AWSToken.getDOMNode().value;
+    auth.register(email, pass, DOToken, AWSToken, (registration) => {
+      console.log(registration);
       if (registration.successfull) {
         this.setState({
             error: false,
@@ -41,8 +42,8 @@ class Signup extends React.Component {
       <form onSubmit={this.handleSubmit}>
         <label><input ref="email" placeholder="email"/></label>
         <label><input ref="pass" placeholder="password"/></label>
-        <label><input ref="firstName" placeholder="firstName"/></label>
-        <label><input ref="lastName" placeholder="lastName"/></label>
+        <label><input ref="DOToken" placeholder="DOToken"/></label>
+        <label><input ref="AWSToken" placeholder="AWSToken"/></label>
         <button type="submit">Register</button>
         {this.state.error && (<p>Wrong informations.</p>)}
         {this.state.success && (<p>Registration succesfull.</p>)}

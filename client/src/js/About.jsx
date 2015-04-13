@@ -2,7 +2,7 @@ const React = require('react');
 
 class About extends React.Component {
   render () {
-    return <h1>About</h1>;
+    return <h1>VMs Manager</h1>;
   }
 }
 

@@ -15,9 +15,13 @@ public class Application extends Controller {
 
 	@SecuredAction
 	public Result hello() {
+        response().setContentType("application/json");
 		User user = (User) ctx().args.get(SecureSocial.USER_KEY);
-		final String userName = user!=null? user.getId() : "guest";
-		return ok("Hello "+userName);
+		final String userToken = user!=null? user.getId() : "guest";
+        final String userEmail = user!=null? user.getEmail() : "guest";
+        final String userDOToken = user!=null? user.getFirstName() : "guest";
+        final String userAWSToken = user!=null? user.getLastName() : "guest";
+		return ok("{\"userToken\":\""+userToken+"\",\"userEmail\":\""+userEmail+"\",\"userDOToken\":\""+userDOToken+"\",\"userAWSToken\":\""+userAWSToken+"\"}");
 	}
 
 }
