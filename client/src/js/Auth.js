@@ -34,7 +34,7 @@ module.exports = {
     return !!localStorage.token;
   },
 
-  onChange()
+  onChange() {
   },
   requireAuth(Component) {
     let auth = this;

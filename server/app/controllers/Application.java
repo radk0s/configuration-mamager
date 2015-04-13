@@ -13,9 +13,8 @@ public class Application extends Controller {
 	@Inject
 	private LocalRuntimeEnvironment env;
 
-
 	@SecuredAction
-	public Result index() {
+	public Result hello() {
 		User user = (User) ctx().args.get(SecureSocial.USER_KEY);
 		final String userName = user!=null? user.getId() : "guest";
 		return ok("Hello "+userName);

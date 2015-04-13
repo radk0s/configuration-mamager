@@ -1,4 +1,4 @@
-var dest = './dist';
+var dest = '../server/public';
 var src = './src';
 
 module.exports = {
