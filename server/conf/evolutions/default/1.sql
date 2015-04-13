@@ -29,9 +29,9 @@ create table USERS (
 
 SET FOREIGN_KEY_CHECKS=0;
 
-drop table if EXISTS TOKENS;
+drop table TOKENS;
 
-drop table if EXISTS USERS;
+drop table USERS;
 
 SET FOREIGN_KEY_CHECKS=1;
 

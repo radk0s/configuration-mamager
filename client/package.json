@@ -42,6 +42,7 @@
     "react": "^0.13.0",
     "react-router": "",
     "react-bootstrap": "^0.16.1",
-    "bootstrap": ""
+    "bootstrap": "",
+    "superagent": ""
   }
 }

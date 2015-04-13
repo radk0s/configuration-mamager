@@ -1,4 +1,6 @@
 const React = require('react');
+const request = require('superagent');
+
 
 module.exports = {
   login (email, pass, cb) {
@@ -19,7 +21,6 @@ module.exports = {
       }
     });
   },
-
   getToken () {
     return localStorage.token;
   },
@@ -48,19 +49,48 @@ module.exports = {
         return <Component {...this.props}/>
       }
     }
+  },
+  register (email, password, firstName, lastName, cb) {
+
+    request.post('/auth/api/signup')
+      .send({email:email,
+        password: password,
+        password2: password,
+        firstName: firstName,
+        lastName: lastName})
+      .set('Accept', 'application/json')
+      .end(function(err, res){
+
+        if (res.body.status == "OK") {
+          cb({
+            successfull: true
+          });
+        } else {
+          cb({
+            successfull: false
+          });
+        }
+      });
+
   }
 };
 
 function pretendRequest(email, pass, cb)
 {
-  setTimeout(() => {
-    if (email === 'joe@example.com' && pass === 'password1') {
-      cb({
-        authenticated: true,
-        token: Math.random().toString(36).substring(7)
-      });
-    } else {
-      cb({authenticated: false});
-    }
-  }, 0);
+  request.post('/auth/api/authenticate/userpass')
+    .send({ username: email, password: pass })
+    .set('Accept', 'application/json')
+    .end(function(err, res){
+      let result = JSON.stringify(res.body);
+      console.log(result);
+      console.log(res.body.error);
+      if (res.ok && !res.body.errorre) {
+        cb({
+          authenticated: true,
+          token: res.body.token
+        });
+      } else {
+        cb({authenticated: false});
+      }
+    });
 }
