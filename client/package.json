@@ -1,5 +1,5 @@
 {
-  "name": "di-balance-radar-client",
+  "name": "vmsmanager",
   "version": "0.1.0",
   "description": "DI Balance Radar: ...",
   "author": "",
@@ -40,6 +40,7 @@
     "flux": "^2.0.1",
     "object-assign": "^2.0.0",
     "react": "^0.13.0",
+    "react-router": "",
     "react-bootstrap": "^0.16.1",
     "bootstrap": ""
   }
