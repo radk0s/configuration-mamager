@@ -2,25 +2,24 @@ package persistence.services.impl;
 
 import java.util.List;
 
-import com.avaje.ebean.annotation.Transactional;
-
 import persistence.dao.BaseDao;
 import persistence.filters.Filter;
 import persistence.model.AbstractEntity;
 import persistence.services.BasePersistenceService;
-import play.db.ebean.Model;
+
+import com.avaje.ebean.annotation.Transactional;
 
 @Transactional
-public abstract class BasePersistenceServiceImpl<T extends Model> implements BasePersistenceService<T>{
+public abstract class BasePersistenceServiceImpl<T extends AbstractEntity> implements BasePersistenceService<T> {
 	protected abstract BaseDao<T> getBaseDao();
 
 	@Override
 	public void save(T entity) {
 		getBaseDao().save(entity);
 	}
-	
+
 	@Override
-	public List<T> getAll(){
+	public List<T> getAll() {
 		return getBaseDao().getBy(null);
 	}
 

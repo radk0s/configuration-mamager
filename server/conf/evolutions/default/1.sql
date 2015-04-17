@@ -4,22 +4,24 @@
 # --- !Ups
 
 create table TOKENS (
-  uuid                      varchar(255) not null,
+  id                        bigint auto_increment not null,
+  uuid                      varchar(255),
   email                     varchar(255),
-  created_at                datetime,
-  expire_at                 datetime,
-  is_sign_up                tinyint(1) default 0,
-  constraint pk_TOKENS primary key (uuid))
+  created_at                timestamp,
+  expire_at                 timestamp,
+  is_sign_up                boolean,
+  constraint pk_TOKENS primary key (id))
 ;
 
 create table USERS (
-  ID                        varchar(255) not null,
+  id                        bigint auto_increment not null,
   EMAIL                     varchar(255),
-  PASSWORD                  varchar(255),
+  PASSWORD                  integer,
   PROVIDER                  varchar(255),
   FIRST_NAME                varchar(255),
   LAST_NAME                 varchar(255),
-  constraint pk_USERS primary key (ID))
+  auth_token                varchar(255),
+  constraint pk_USERS primary key (id))
 ;
 
 
@@ -27,11 +29,11 @@ create table USERS (
 
 # --- !Downs
 
-SET FOREIGN_KEY_CHECKS=0;
+SET REFERENTIAL_INTEGRITY FALSE;
 
-drop table TOKENS;
+drop table if exists TOKENS;
 
-drop table USERS;
+drop table if exists USERS;
 
-SET FOREIGN_KEY_CHECKS=1;
+SET REFERENTIAL_INTEGRITY TRUE;
 

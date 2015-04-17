@@ -3,34 +3,18 @@
 # ~~~~
 
 # Home page
-GET         /                                       controllers.Assets.at(path="/public", file="/index.html")
+#GET         /                                       controllers.Assets.at(path="/public", file="/index.html")
 
+GET			/index									controllers.Application.index()
 GET         /hello                                  @controllers.Application.hello()
 
-#### SECURE SOCIAL ROUTES ####
-GET         /login                                  @securesocial.controllers.LoginPage.login
-GET         /logout                                 @securesocial.controllers.LoginPage.logout
 
-# Login page
-GET         /auth/login                             @controllers.ssControllers.LoginPage.login
-GET         /auth/logout                            @controllers.ssControllers.LoginPage.logout
+POST    	/login                      			@controllers.security.AuthenticationController.authenticate()
+GET     	/logout                 			    @controllers.security.AuthenticationController.logout()
 
-# User Registration and password handling
-GET         /auth/signup                            @controllers.ssControllers.Registration.startSignUp
-POST        /auth/signup                            @controllers.ssControllers.Registration.handleStartSignUp
-GET         /auth/signup/:token                     @controllers.ssControllers.Registration.signUp(token)
-POST        /auth/signup/:token                     @controllers.ssControllers.Registration.handleSignUp(token)
-POST        /auth/api/signup                        @controllers.ssControllers.LoginApi.signUp()
-GET         /auth/password                          @controllers.ssControllers.PasswordChange.page
-POST        /auth/password                          @controllers.ssControllers.PasswordChange.handlePasswordChange
+# User Registration
+POST       /signup                           	 	@controllers.security.RegistrationController.signUp()
 
-# Providers entry points
-GET         /auth/authenticate/:provider            @controllers.ssControllers.ProviderController.authenticate(provider)
-POST        /auth/authenticate/:provider            @controllers.ssControllers.ProviderController.authenticateByPost(provider)
-POST        /auth/api/authenticate/:provider        @controllers.ssControllers.LoginApi.authenticate(provider:String, builder: String = "token")
-
-
-->          /auth                                   securesocial.Routes
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /*file                           controllers.Assets.at(path="/public", file)

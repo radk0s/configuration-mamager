@@ -2,7 +2,6 @@ package persistence.configuration;
 
 import play.Application;
 import play.GlobalSettings;
-import play.Logger;
 
 import com.google.inject.Guice;
 import com.google.inject.Injector;

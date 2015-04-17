@@ -4,9 +4,8 @@ import java.util.List;
 
 import persistence.filters.Filter;
 import persistence.model.AbstractEntity;
-import play.db.ebean.Model;
 
-public interface BaseDao<T extends Model> {
+public interface BaseDao<T extends AbstractEntity> {
 
 	void save(T entity);
 

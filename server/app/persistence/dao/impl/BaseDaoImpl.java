@@ -2,29 +2,31 @@ package persistence.dao.impl;
 
 import java.util.List;
 
-import javax.persistence.metamodel.Attribute;
+import org.apache.commons.lang3.tuple.Pair;
 
 import persistence.dao.BaseDao;
 import persistence.filters.Filter;
-import persistence.filters.Pair;
 import persistence.model.AbstractEntity;
-import play.db.ebean.Model;
-import play.db.ebean.Model.Finder;
 
 import com.avaje.ebean.Ebean;
 import com.avaje.ebean.Expr;
 import com.avaje.ebean.Expression;
 import com.avaje.ebean.Query;
 
-public abstract class BaseDaoImpl<T extends Model> implements BaseDao<T> {
+public abstract class BaseDaoImpl<T extends AbstractEntity> implements BaseDao<T> {
 
 	private Class<T> clazz;
-	protected Finder<Long, T> find;
 
 	protected BaseDaoImpl(Class<T> clazz) {
 		this.clazz = clazz;
-		find = new Finder<Long, T>(Long.class, clazz);
+	}
 
+	@Override
+	public void save(T entity) {
+		if (entity.getId() != null)
+			Ebean.update(entity);
+		else
+			Ebean.save(entity);
 	}
 
 	@Override
@@ -46,7 +48,7 @@ public abstract class BaseDaoImpl<T extends Model> implements BaseDao<T> {
 
 		Expression finalExpr = null;
 		for (Pair<String, Object> pair : filter.getAndList()) {
-			Expression newEqual = Expr.eq(pair.getFirst(), pair.getSecond());
+			Expression newEqual = Expr.eq(pair.getLeft(), pair.getRight());
 			if (finalExpr == null)
 				finalExpr = newEqual;
 			else
