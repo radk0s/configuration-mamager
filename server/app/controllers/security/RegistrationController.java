@@ -25,11 +25,11 @@ public class RegistrationController extends Controller {
 		}
 
 		Register register = registerForm.get();
-		
+
 		User user = createUser(register);
 		String authToken = TokenGenerator.generate();
 		user.setAuthToken(authToken);
-		
+
 		userService.save(user);
 
 		ObjectNode authTokenJson = Json.newObject();
@@ -43,6 +43,8 @@ public class RegistrationController extends Controller {
 		User user = new User();
 		user.setEmail(register.email);
 		user.setPassword(register.password);
+		user.setAuthToken(register.awsToken);
+		user.setDigitalOceanToken(register.doToken);
 		return user;
 	}
 
@@ -54,6 +56,13 @@ public class RegistrationController extends Controller {
 
 		@Constraints.Required
 		public String password;
+
+		@Constraints.Required
+		public String passwordConfirmation;
+
+		public String awsToken;
+
+		public String doToken;
 
 		/**
 		 * Validate the authentication.
@@ -69,6 +78,9 @@ public class RegistrationController extends Controller {
 				return "Password is required";
 			}
 
+			if (isBlank(passwordConfirmation)) {
+				return "Password confirmation is required";
+			}
 			return null;
 		}
 

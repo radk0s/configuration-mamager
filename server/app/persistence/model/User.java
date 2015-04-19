@@ -29,6 +29,10 @@ public class User extends AbstractEntity {
 
 	private String authToken;
 
+	private String awsToken;
+	
+	private String digitalOceanToken;
+
 	public String getEmail() {
 		return email;
 	}
@@ -75,5 +79,21 @@ public class User extends AbstractEntity {
 
 	public void setAuthToken(String authToken) {
 		this.authToken = authToken;
+	}
+
+	public String getAwsToken() {
+		return awsToken;
+	}
+
+	public void setAwsToken(String awsToken) {
+		this.awsToken = awsToken;
+	}
+
+	public String getDigitalOceanToken() {
+		return digitalOceanToken;
+	}
+
+	public void setDigitalOceanToken(String digitalOceanToken) {
+		this.digitalOceanToken = digitalOceanToken;
 	}
 }
