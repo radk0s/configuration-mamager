@@ -3,18 +3,20 @@
 # ~~~~
 
 # Home page
-#GET         /                                       controllers.Assets.at(path="/public", file="/index.html")
+GET         /              controllers.Assets.at(path="/public", file="/index.html")
 
-GET			/index									controllers.Application.index()
-GET         /hello                                  @controllers.Application.hello()
+GET         /index         controllers.Application.index()
+GET         /hello         @controllers.Application.hello()
 
 
-POST    	/login                      			@controllers.security.AuthenticationController.authenticate()
-GET     	/logout                 			    @controllers.security.AuthenticationController.logout()
+POST        /login         @controllers.security.AuthenticationController.authenticate()
+GET         /logout        @controllers.security.AuthenticationController.logout()
 
 # User Registration
-POST       /signup                           	 	@controllers.security.RegistrationController.signUp()
+POST       /signup         @controllers.security.RegistrationController.signUp()
 
+# Machines mock
+GET        /instances/do   @controllers.Application.listInstances()
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /*file                           controllers.Assets.at(path="/public", file)

@@ -7,6 +7,7 @@ const Logout = require('./Logout.jsx');
 const About = require('./About.jsx');
 const Dashboard = require('./Dashboard.jsx');
 const Signup = require('./Signup.jsx');
+const Machines = require('./Machines.jsx');
 
 class App extends React.Component {
   constructor () {
@@ -44,6 +45,7 @@ class App extends React.Component {
               (<Link to="signup">Sign up</Link>)
             }
           </li>
+          <li><Link to="machines">Machines</Link></li>
         </ul>
         <RouteHandler/>
       </div>
@@ -58,6 +60,7 @@ var routes = (
     <Route name="about" handler={About}/>
     <Route name="dashboard" handler={Dashboard}/>
     <Route name="signup" handler={Signup}/>
+    <Route name="machines" handler={Machines}/>
   </Route>
 );
 
