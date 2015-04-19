@@ -42,7 +42,7 @@ public class AuthenticationController extends Controller {
 
 			ObjectNode authTokenJson = Json.newObject();
 			authTokenJson.put(AUTH_TOKEN, authToken);
-			response().setCookie(AUTH_TOKEN, authToken);
+			response().setHeader(AUTH_TOKEN, authToken);
 			return ok(authTokenJson);
 		}
 	}

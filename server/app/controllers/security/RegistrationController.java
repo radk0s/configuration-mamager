@@ -27,6 +27,11 @@ public class RegistrationController extends Controller {
 		Register register = registerForm.get();
 
 		User user = createUser(register);
+
+		User userFromDb = userService.findByEmail(user.getEmail());
+		if (userFromDb != null)
+			return badRequest("User with email " + user.getEmail() + " already exists.");
+
 		String authToken = TokenGenerator.generate();
 		user.setAuthToken(authToken);
 
@@ -34,7 +39,7 @@ public class RegistrationController extends Controller {
 
 		ObjectNode authTokenJson = Json.newObject();
 		authTokenJson.put(AuthenticationController.AUTH_TOKEN, authToken);
-		response().setCookie(AuthenticationController.AUTH_TOKEN, authToken);
+		response().setHeader(AuthenticationController.AUTH_TOKEN, authToken);
 		return ok(authTokenJson);
 
 	}
@@ -43,7 +48,7 @@ public class RegistrationController extends Controller {
 		User user = new User();
 		user.setEmail(register.email);
 		user.setPassword(register.password);
-		user.setAuthToken(register.awsToken);
+		user.setAwsToken(register.awsToken);
 		user.setDigitalOceanToken(register.doToken);
 		return user;
 	}
@@ -80,6 +85,10 @@ public class RegistrationController extends Controller {
 
 			if (isBlank(passwordConfirmation)) {
 				return "Password confirmation is required";
+			}
+
+			if (!password.equals(passwordConfirmation)) {
+				return "Password confirmation does not match original password";
 			}
 			return null;
 		}

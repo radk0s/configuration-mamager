@@ -23,13 +23,18 @@ public class UserPersistenceServiceImpl extends BasePersistenceServiceImpl<User>
 
 	@Override
 	public User findByAuthToken(String authToken) {
-		return userDao.getSingleBy(Filter.create().eqAttr("authToken", authToken));
+		return userDao.getSingleBy(Filter.create().eqAttr("authToken",Hasher.calculateMd5( authToken)));
 	}
 
 	@Override
 	public User findByEmailAndPassword(String email, String password) {
 		return userDao.getSingleBy(Filter.create().eqAttr("email", email)
 				.eqAttr("password", Hasher.calculateMd5(password)));
+	}
+
+	@Override
+	public User findByEmail(String email) {
+		return userDao.getSingleBy(Filter.create().eqAttr("email", email));
 	}
 
 	@Override
