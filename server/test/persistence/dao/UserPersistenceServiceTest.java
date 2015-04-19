@@ -58,7 +58,7 @@ public class UserPersistenceServiceTest extends WithApplication {
 		for (int i = 0; i < users.size(); i++) {
 			User expUser = users.get(i);
 			User actUser = usersFromDb.get(i);
-			assertEquals(expUser.getLogin(), actUser.getLogin());
+			assertEquals(expUser.getEmail(), actUser.getEmail());
 			assertEquals(expUser.getPasswordMd5(), actUser.getPasswordMd5());
 		}
 	}
@@ -78,9 +78,9 @@ public class UserPersistenceServiceTest extends WithApplication {
 		int numberOfUsers = 5;
 		List<User> users = saveUsers(numberOfUsers);
 
-		User user=userService.getSingleBy(Filter.create().eqAttr("login", users.get(0).getLogin()));
+		User user=userService.getSingleBy(Filter.create().eqAttr("email", users.get(0).getEmail()));
 		assertNotNull(user);
-		assertEquals(user.getLogin(), users.get(0).getLogin());
+		assertEquals(user.getEmail(), users.get(0).getEmail());
 	}
 
 	
@@ -105,8 +105,8 @@ public class UserPersistenceServiceTest extends WithApplication {
 
 	private User createUser(int i) {
 		User user = new User();
-		user.setLogin("login"+i);
-		user.setPasswordMd5(1);
+		user.setEmail("login"+i);
+		user.setPassword("password");
 		return user;
 	}
 }

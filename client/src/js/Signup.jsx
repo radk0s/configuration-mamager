@@ -41,7 +41,7 @@ class Signup extends React.Component {
     return (
       <form onSubmit={this.handleSubmit}>
         <label><input ref="email" placeholder="email"/></label>
-        <label><input ref="pass" placeholder="password"/></label>
+        <label><input type="password" ref="pass" placeholder="password"/></label>
         <label><input ref="DOToken" placeholder="DOToken"/></label>
         <label><input ref="AWSToken" placeholder="AWSToken"/></label>
         <button type="submit">Register</button>

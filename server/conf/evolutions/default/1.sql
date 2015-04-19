@@ -4,22 +4,26 @@
 # --- !Ups
 
 create table TOKENS (
-  uuid                      varchar(255) not null,
+  id                        bigint auto_increment not null,
+  uuid                      varchar(255),
   email                     varchar(255),
   created_at                datetime,
   expire_at                 datetime,
   is_sign_up                tinyint(1) default 0,
-  constraint pk_TOKENS primary key (uuid))
+  constraint pk_TOKENS primary key (id))
 ;
 
 create table USERS (
-  ID                        varchar(255) not null,
+  id                        bigint auto_increment not null,
   EMAIL                     varchar(255),
-  PASSWORD                  varchar(255),
+  PASSWORD                  integer,
   PROVIDER                  varchar(255),
   FIRST_NAME                varchar(255),
   LAST_NAME                 varchar(255),
-  constraint pk_USERS primary key (ID))
+  auth_token                integer,
+  aws_token                 varchar(255),
+  digital_ocean_token       varchar(255),
+  constraint pk_USERS primary key (id))
 ;
 
 
