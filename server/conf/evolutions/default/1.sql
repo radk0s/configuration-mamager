@@ -7,9 +7,9 @@ create table TOKENS (
   id                        bigint auto_increment not null,
   uuid                      varchar(255),
   email                     varchar(255),
-  created_at                timestamp,
-  expire_at                 timestamp,
-  is_sign_up                boolean,
+  created_at                datetime,
+  expire_at                 datetime,
+  is_sign_up                tinyint(1) default 0,
   constraint pk_TOKENS primary key (id))
 ;
 
@@ -31,11 +31,11 @@ create table USERS (
 
 # --- !Downs
 
-SET REFERENTIAL_INTEGRITY FALSE;
+SET FOREIGN_KEY_CHECKS=0;
 
-drop table if exists TOKENS;
+drop table TOKENS;
 
-drop table if exists USERS;
+drop table USERS;
 
-SET REFERENTIAL_INTEGRITY TRUE;
+SET FOREIGN_KEY_CHECKS=1;
 

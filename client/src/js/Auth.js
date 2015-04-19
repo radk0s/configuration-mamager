@@ -50,18 +50,17 @@ module.exports = {
       }
     }
   },
-  register (email, password, firstName, lastName, cb) {
+  register (email, password, awsToken, doToken, cb) {
 
-    request.post('/auth/api/signup')
+    request.post('/signup')
       .send({email:email,
         password: password,
-        password2: password,
-        firstName: firstName,
-        lastName: lastName})
+        passwordConfirmation: password,
+        awsToken: awsToken,
+        doToken: doToken})
       .set('Accept', 'application/json')
       .end(function(err, res){
-
-        if (res.body.status == "OK") {
+        if (res.statusText == "OK") {
           cb({
             successfull: true
           });
@@ -77,13 +76,12 @@ module.exports = {
 
 function pretendRequest(email, pass, cb)
 {
-  request.post('/auth/api/authenticate/userpass')
-    .send({ username: email, password: pass })
+  request.post('/login')
+    .send({ email: email, password: pass })
     .set('Accept', 'application/json')
     .end(function(err, res){
       let result = JSON.stringify(res.body);
       console.log(result);
-      console.log(res.body.error);
       if (res.ok && !res.body.errorre) {
         cb({
           authenticated: true,

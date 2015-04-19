@@ -21,6 +21,7 @@ public class Application extends Controller {
 		return ok();
 	}
 
+	@Authenticated(Secured.class)
 	public Result hello() {
 		response().setContentType("application/json");
 		User user = null;
@@ -33,8 +34,8 @@ public class Application extends Controller {
 
 		final long userToken = user != null ? user.getId() : 1;
 		final String userEmail = user != null ? user.getEmail() : "guest";
-		final String userDOToken = user != null ? user.getFirstName() : "guest";
-		final String userAWSToken = user != null ? user.getLastName() : "guest";
+		final String userDOToken = user != null ? user.getDigitalOceanToken() : "guest";
+		final String userAWSToken = user != null ? user.getAwsToken() : "guest";
 
 		return ok("{\"userToken\":\"" + userToken + "\",\"userEmail\":\"" + userEmail + "\",\"userDOToken\":\""
 				+ userDOToken + "\",\"userAWSToken\":\"" + userAWSToken + "\"}");
