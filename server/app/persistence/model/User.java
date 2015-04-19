@@ -27,8 +27,12 @@ public class User extends AbstractEntity {
 	@Column(name = "LAST_NAME")
 	private String lastName;
 
-	private String authToken;
+	private Integer authToken;
 
+	private String awsToken;
+
+	private String digitalOceanToken;
+	
 	public String getEmail() {
 		return email;
 	}
@@ -69,11 +73,30 @@ public class User extends AbstractEntity {
 		this.lastName = lastName;
 	}
 
-	public String getAuthToken() {
+	public Integer getAuthTokenMd5() {
 		return authToken;
 	}
 
 	public void setAuthToken(String authToken) {
-		this.authToken = authToken;
+		if (authToken != null)
+			this.authToken = Hasher.calculateMd5(authToken);
+		else
+			this.authToken = null;
+	}
+
+	public String getAwsToken() {
+		return awsToken;
+	}
+
+	public void setAwsToken(String awsToken) {
+		this.awsToken = awsToken;
+	}
+
+	public String getDigitalOceanToken() {
+		return digitalOceanToken;
+	}
+
+	public void setDigitalOceanToken(String digitalOceanToken) {
+		this.digitalOceanToken = digitalOceanToken;
 	}
 }

@@ -4,7 +4,6 @@ import persistence.configuration.BaseModule;
 import persistence.model.User;
 import persistence.services.UserPersistenceService;
 import play.mvc.Http.Context;
-import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.mvc.Security;
 
@@ -27,10 +26,10 @@ public class Secured extends Security.Authenticator {
 	@Override
 	public String getUsername(Context ctx) {
 		User user = null;
-		Cookie authToken = ctx.request().cookie(AuthenticationController.AUTH_TOKEN);
+		String[] authToken = ctx.request().headers().get(AuthenticationController.AUTH_TOKEN);
 
-		if ((authToken != null)) {
-			user = userService.findByAuthToken(authToken.value());
+		if ((authToken != null && authToken.length>0)) {
+			user = userService.findByAuthToken(authToken[0]);
 			if (user != null) {
 				ctx.args.put("user", user);
 				return user.getEmail();

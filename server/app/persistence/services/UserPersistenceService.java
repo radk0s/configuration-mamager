@@ -10,4 +10,6 @@ public interface UserPersistenceService extends BasePersistenceService<User> {
 	
 	void deleteAuthToken(User user);
 
+	User findByEmail(String email);
+
 }

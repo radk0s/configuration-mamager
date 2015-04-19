@@ -11,9 +11,9 @@ public class Hasher {
 		
 	}
 	
-	public static int calculateMd5(String password) {
+	public static int calculateMd5(String stringToHash) {
 		HashFunction hf = Hashing.md5();
-		HashCode hc = hf.newHasher().putString(password, Charsets.UTF_8).hash();
+		HashCode hc = hf.newHasher().putString(stringToHash, Charsets.UTF_8).hash();
 		return hc.asInt();
 	}
 
