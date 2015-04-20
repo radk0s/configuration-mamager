@@ -25,12 +25,12 @@ public class Application extends Controller {
 	public Result hello() {
 		response().setContentType("application/json");
 		User user = null;
+		String authToken = ctx().request().headers().get(AuthenticationController.AUTH_TOKEN)[0];
 
-		String authTokenValue = ctx().request().cookie(AuthenticationController.AUTH_TOKEN).value();
-
-		if ((authTokenValue != null)) {
-			user = userService.findByAuthToken(authTokenValue);
+		if ((authToken != null)) {
+			user = userService.findByAuthToken(authToken);
 		}
+
 
 		final long userToken = user != null ? user.getId() : 1;
 		final String userEmail = user != null ? user.getEmail() : "guest";
