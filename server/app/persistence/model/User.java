@@ -32,7 +32,7 @@ public class User extends AbstractEntity {
 	private String awsToken;
 
 	private String digitalOceanToken;
-
+	
 	public String getEmail() {
 		return email;
 	}
