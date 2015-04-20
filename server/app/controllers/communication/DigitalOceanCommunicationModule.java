@@ -43,12 +43,8 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	 */
 	@Override
 	public Promise<Result> createInstance() {
-
-		String url = "https://api.digitalocean.com/v2/droplets";
-		WSRequestHolder request = createRequest(url);
-		
+		WSRequestHolder request = createRequest(Urls.DIGITAL_OCEAN_URL.toString());
 		return request.post(request().body().asJson()).map(function);
-		
 	}
 
 	/**
@@ -83,8 +79,7 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	 */
 	@Override
 	public Promise<Result> deleteInstance() {
-
-		String url = "https://api.digitalocean.com/v2/droplets/" + getInstanceId();
+		String url = Urls.DIGITAL_OCEAN_URL.toString() + getInstanceId();
 		WSRequestHolder request = createRequest(url);
 		return request.delete().map(function);
 	}
@@ -95,14 +90,13 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	 */
 	@Override
 	public Promise<Result> listInstances() {
-		String url = "https://api.digitalocean.com/v2/droplets";
-		WSRequestHolder request = createRequest(url);
+		WSRequestHolder request = createRequest(Urls.DIGITAL_OCEAN_URL.toString());
 		return request.get().map(function);
 	}
 
 	private Promise<Result> dropletActions(ObjectNode body) {
 		int instanceId = getInstanceId();
-		String url = "https://api.digitalocean.com/v2/droplets/" + instanceId + "/actions";
+		String url = Urls.DIGITAL_OCEAN_URL.toString() + instanceId + "/actions";
 
 		WSRequestHolder request = createRequest(url);
 		return request.post(body).map(function);
@@ -114,7 +108,6 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	}
 
 	private WSRequestHolder createRequest(String url) {
-
 		WSRequestHolder request = WS.url(url);
 		User user = getUserFromRequest();
 		request.setHeader("Bearer", user.getDigitalOceanToken());
