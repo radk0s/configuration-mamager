@@ -13,6 +13,7 @@ libraryDependencies ++= Seq(
   javaJdbc,
   javaEbean,
   cache,
+  javaWs,
   "mysql" % "mysql-connector-java" % "5.1.18",
   "com.google.inject" % "guice" % "3.0"
 )

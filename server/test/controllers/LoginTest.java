@@ -1,18 +1,11 @@
 package controllers;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static play.test.Helpers.callAction;
-import static play.test.Helpers.fakeRequest;
-import static play.test.Helpers.status;
-
 import org.junit.Before;
 import org.junit.Test;
 
 import persistence.configuration.BaseModule;
 import persistence.model.User;
 import persistence.services.UserPersistenceService;
-import play.mvc.Http.Cookie;
 import play.mvc.Result;
 import play.test.FakeApplication;
 import play.test.Helpers;

@@ -15,10 +15,12 @@ GET         /logout        @controllers.security.AuthenticationController.logout
 # User Registration
 POST       /signup         @controllers.security.RegistrationController.signUp()
 
-# Machines mock
-GET        /instances/do   @controllers.Application.listInstances()
 
 # Map static resources from the /public folder to the /assets URL path
-GET         /*file                           controllers.Assets.at(path="/public", file)
+GET         /*file                           		controllers.Assets.at(path="/public", file)
 
-
+GET			/instances/do							@controllers.communication.DigitalOceanCommunicationModule.listInstances()
+POST		/instances/do							@controllers.communication.DigitalOceanCommunicationModule.createInstance()
+POST 		/instances/do/run						@controllers.communication.DigitalOceanCommunicationModule.runInstance()
+POST 		/instances/do/stop						@controllers.communication.DigitalOceanCommunicationModule.stopInstance()
+POST 		/instances/do/delete					@controllers.communication.DigitalOceanCommunicationModule.deleteInstance()
