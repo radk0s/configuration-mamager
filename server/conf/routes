@@ -8,11 +8,6 @@ GET         /              controllers.Assets.at(path="/public", file="/index.ht
 GET         /index         controllers.Application.index()
 GET         /hello         @controllers.Application.hello()
 
-GET			/instances/do							@controllers.communication.DigitalOceanCommunicationModule.listInstances()
-POST		/instances/do							@controllers.communication.DigitalOceanCommunicationModule.createInstance()
-POST 		/instances/do/run						@controllers.communication.DigitalOceanCommunicationModule.runInstance()
-POST 		/instances/do/stop						@controllers.communication.DigitalOceanCommunicationModule.stopInstance()
-POST 		/instances/do/delete					@controllers.communication.DigitalOceanCommunicationModule.deleteInstance()
 
 POST        /login         @controllers.security.AuthenticationController.authenticate()
 GET         /logout        @controllers.security.AuthenticationController.logout()
@@ -20,6 +15,12 @@ GET         /logout        @controllers.security.AuthenticationController.logout
 # User Registration
 POST       /signup         @controllers.security.RegistrationController.signUp()
 
+
+GET			/instances/do							@controllers.communication.DigitalOceanCommunicationModule.listInstances()
+POST		/instances/do							@controllers.communication.DigitalOceanCommunicationModule.createInstance()
+POST 		/instances/do/run						@controllers.communication.DigitalOceanCommunicationModule.runInstance()
+POST 		/instances/do/stop						@controllers.communication.DigitalOceanCommunicationModule.stopInstance()
+POST 		/instances/do/delete					@controllers.communication.DigitalOceanCommunicationModule.deleteInstance()
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /*file                           		controllers.Assets.at(path="/public", file)
