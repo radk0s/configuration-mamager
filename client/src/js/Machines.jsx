@@ -43,7 +43,7 @@ let Machines = React.createClass({
         })
         .end((err, res) => {
           console.log(res);
-          this.listMachines();
+          setTimeout(this.listMachines,500);
         });
     },
 
