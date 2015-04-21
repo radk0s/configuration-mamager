@@ -1,5 +1,6 @@
 const React = require('react');
 const auth = require('./Auth.js');
+const {Grid, Row, Col, Input, Button} = require('react-bootstrap');
 
 class Signup extends React.Component {
 
@@ -15,10 +16,10 @@ class Signup extends React.Component {
     event.preventDefault();
     var { router } = this.context;
     var nextPath = router.getCurrentQuery().nextPath;
-    var email = this.refs.email.getDOMNode().value;
-    var pass = this.refs.pass.getDOMNode().value;
-    var DOToken = this.refs.DOToken.getDOMNode().value;
-    var AWSToken = this.refs.AWSToken.getDOMNode().value;
+    var email = this.refs.email.getValue();
+    var pass = this.refs.pass.getValue();
+    var DOToken = this.refs.DOToken.getValue();
+    var AWSToken = this.refs.AWSToken.getValue();
     auth.register(email, pass, DOToken, AWSToken, (registration) => {
       console.log(registration);
       if (registration.successfull) {
@@ -39,15 +40,25 @@ class Signup extends React.Component {
 
   render () {
     return (
-      <form onSubmit={this.handleSubmit}>
-        <label><input ref="email" placeholder="email"/></label>
-        <label><input type="password" ref="pass" placeholder="password"/></label>
-        <label><input ref="DOToken" placeholder="DOToken"/></label>
-        <label><input ref="AWSToken" placeholder="AWSToken"/></label>
-        <button type="submit">Register</button>
-        {this.state.error && (<p>Wrong informations.</p>)}
-        {this.state.success && (<p>Registration succesfull.</p>)}
-      </form>
+    <form onSubmit={this.handleSubmit}>
+      <Row>
+        <Input type='text' label='Email' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'email'}/>
+      </Row>
+      <Row>
+        <Input type='password' label='Password' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'pass'}/>
+      </Row>
+      <Row>
+        <Input type='text' label='DOToken' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'DOToken'}/>
+      </Row>
+      <Row>
+        <Input type='password' label='AWSToken' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSToken'}/>
+      </Row>
+      <Row/>
+      <Row>
+        <Input wrapperClassName='col-xs-offset-4 col-xs-1' type='submit' value='Register'
+          help={this.state.success?'Registration succesfull.':'Wrong informations.'}/>
+      </Row>
+    </form>
     );
   }
 }

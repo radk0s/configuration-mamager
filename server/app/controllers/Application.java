@@ -26,7 +26,6 @@ public class Application extends Controller {
 		response().setContentType("application/json");
 		User user = null;
 		String authToken = ctx().request().headers().get(AuthenticationController.AUTH_TOKEN)[0];
-
 		if ((authToken != null)) {
 			user = userService.findByAuthToken(authToken);
 		}

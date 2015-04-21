@@ -81,11 +81,11 @@ function pretendRequest(email, pass, cb)
     .set('Accept', 'application/json')
     .end(function(err, res){
       let result = JSON.stringify(res.body);
-      console.log(result);
+      console.log(res.body.authToken);
       if (res.ok && !res.body.errorre) {
         cb({
           authenticated: true,
-          token: res.body.token
+          token: res.body.authToken
         });
       } else {
         cb({authenticated: false});

@@ -1,5 +1,6 @@
 const React = require('react');
 const auth = require('./Auth.js');
+const {Grid, Row, Col, Input, Button} = require('react-bootstrap');
 
 class Login extends React.Component {
 
@@ -14,15 +15,15 @@ class Login extends React.Component {
     event.preventDefault();
     var { router } = this.context;
     var nextPath = router.getCurrentQuery().nextPath;
-    var email = this.refs.email.getDOMNode().value;
-    var pass = this.refs.pass.getDOMNode().value;
+    var email = this.refs.email.getValue();
+    var pass = this.refs.pass.getValue();
     auth.login(email, pass, (loggedIn) => {
       if (!loggedIn)
         return this.setState({ error: true });
       if (nextPath) {
         router.replaceWith(nextPath);
       } else {
-        router.replaceWith('/about');
+        router.replaceWith('/dashboard');
       }
     });
   }
@@ -30,12 +31,17 @@ class Login extends React.Component {
   render () {
     return (
       <form onSubmit={this.handleSubmit}>
-        <label><input ref="email" placeholder="email"/></label>
-        <label><input ref="pass" type="password" placeholder="password"/></label><br/>
-        <button type="submit">login</button>
-        {this.state.error && (
-          <p>Bad login information</p>
-        )}
+        <Row>
+          <Input type='text' label='Email' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'email'}/>
+        </Row>
+        <Row>
+          <Input type='password' label='Password' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'pass'}/>
+        </Row>
+        <Row/>
+        <Row>
+          <Input wrapperClassName='col-xs-offset-4 col-xs-1' type='submit' value='Log in  ' help={this.state.error && 'Bad login information'}/>
+
+        </Row>
       </form>
     );
   }

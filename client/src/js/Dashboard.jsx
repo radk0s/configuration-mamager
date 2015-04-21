@@ -1,6 +1,8 @@
 const React = require('react');
 const auth = require('./Auth.js');
 const request = require('superagent');
+const {Grid, Row, Col} = require('react-bootstrap');
+
 
 let Dashboard = React.createClass({
     getInitialState() {
@@ -12,9 +14,10 @@ let Dashboard = React.createClass({
       }
     },
     componentDidMount() {
+      console.log(auth.getToken());
       request
         .get('/hello')
-        .set('X-Auth-Token', auth.getToken())
+        .set('authToken', auth.getToken())
         .set('Accept', 'application/json')
         .end((err, res) => {
           console.log(res.body);
@@ -25,12 +28,17 @@ let Dashboard = React.createClass({
       var token = auth.getToken();
       console.log(this);
       return (
-        <div>
-          <h1>Dashboard</h1>
-          <p>User Email: {this.state.userEmail}</p>
-          <p>DO Token: {this.state.userDOToken}</p>
-          <p>AWS Token: {this.state.userAWSToken}</p>
-        </div>
+      <Grid>
+        <Row className='show-grid'>
+          <Col xs={6} xsOffset={2}><p>User Email: {this.state.userEmail}</p></Col>
+        </Row>
+        <Row className='show-grid'>
+          <Col xs={8} xsOffset={2}><p>DO Token: {this.state.userDOToken}</p></Col>
+        </Row>
+        <Row className='show-grid'>
+          <Col xs={6} xsOffset={2}><p>AWS Token: {this.state.userAWSToken}</p></Col>
+        </Row>
+      </Grid>
       );
     }
   });

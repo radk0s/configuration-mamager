@@ -43,6 +43,7 @@
     "react-router": "",
     "react-bootstrap": "^0.16.1",
     "bootstrap": "",
-    "superagent": ""
+    "superagent": "",
+    "react-router-bootstrap": ""
   }
 }

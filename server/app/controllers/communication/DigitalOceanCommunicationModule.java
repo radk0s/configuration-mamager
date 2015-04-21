@@ -110,7 +110,8 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	private WSRequestHolder createRequest(String url) {
 		WSRequestHolder request = WS.url(url);
 		User user = getUserFromRequest();
-		request.setHeader("Bearer", user.getDigitalOceanToken());
+
+		request.setHeader("Authorization", "Bearer " +user.getDigitalOceanToken());
 		return request;
 	}
 
