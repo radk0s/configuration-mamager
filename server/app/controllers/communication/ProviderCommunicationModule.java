@@ -8,17 +8,17 @@ import controllers.security.Secured;
 public interface ProviderCommunicationModule {
 
 	@Authenticated(Secured.class)
-	Promise<Result> createInstance();
+	Promise<Result> createInstance() throws Exception;
 
 	@Authenticated(Secured.class)
-	Promise<Result> runInstance();
+	Promise<Result> runInstance() throws Exception;
 
 	@Authenticated(Secured.class)
-	Promise<Result> stopInstance();
+	Promise<Result> stopInstance() throws Exception;
 
 	@Authenticated(Secured.class)
-	Promise<Result> deleteInstance();
-	
+	Promise<Result> deleteInstance() throws Exception;
+
 	@Authenticated(Secured.class)
-	Promise<Result> listInstances();	
+	Promise<Result> listInstances() throws Exception;
 }

@@ -17,10 +17,17 @@ POST       /signup         @controllers.security.RegistrationController.signUp()
 
 
 GET			/instances/do							@controllers.communication.DigitalOceanCommunicationModule.listInstances()
-POST		/instances/do							@controllers.communication.DigitalOceanCommunicationModule.createInstance()
+PUT 		/instances/do							@controllers.communication.DigitalOceanCommunicationModule.createInstance()
 POST 		/instances/do/run						@controllers.communication.DigitalOceanCommunicationModule.runInstance()
 POST 		/instances/do/stop						@controllers.communication.DigitalOceanCommunicationModule.stopInstance()
-POST 		/instances/do/delete					@controllers.communication.DigitalOceanCommunicationModule.deleteInstance()
+DELETE 		/instances/do/delete					@controllers.communication.DigitalOceanCommunicationModule.deleteInstance()
+
+GET			/instances/aws							@controllers.communication.AwsCommunicationModule.listInstances()
+PUT 		/instances/aws							@controllers.communication.AwsCommunicationModule.createInstance()
+POST 		/instances/aws/run						@controllers.communication.AwsCommunicationModule.runInstance()
+POST 		/instances/aws/stop						@controllers.communication.AwsCommunicationModule.stopInstance()
+DELETE 		/instances/aws/delete					@controllers.communication.AwsCommunicationModule.deleteInstance()
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /*file                           		controllers.Assets.at(path="/public", file)
