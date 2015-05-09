@@ -19,8 +19,9 @@ class Signup extends React.Component {
     var email = this.refs.email.getValue();
     var pass = this.refs.pass.getValue();
     var DOToken = this.refs.DOToken.getValue();
-    var AWSToken = this.refs.AWSToken.getValue();
-    auth.register(email, pass, DOToken, AWSToken, (registration) => {
+    var AWSAccessKey = this.refs.AWSAccessKey.getValue();
+    var AWSSecretKey = this.refs.AWSSecretKey.getValue();
+    auth.register(email, pass, DOToken, AWSAccessKey, AWSSecretKey, (registration) => {
       console.log(registration);
       if (registration.successfull) {
         this.setState({
@@ -51,7 +52,10 @@ class Signup extends React.Component {
         <Input type='text' label='DOToken' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'DOToken'}/>
       </Row>
       <Row>
-        <Input type='password' label='AWSToken' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSToken'}/>
+        <Input type='text' label='AWSAccessKey' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSAccessKey'}/>
+      </Row>
+      <Row>
+        <Input type='text' label='AWSSecretKey' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSSecretKey'}/>
       </Row>
       <Row/>
       <Row>

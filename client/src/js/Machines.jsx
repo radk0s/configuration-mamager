@@ -27,7 +27,7 @@ let Machines = React.createClass({
     },
     createMachine() {
       request
-        .post('/instances/do')
+        .put('/instances/do')
         .set('authToken', auth.getToken())
         .set('Accept', 'application/json')
         .send({

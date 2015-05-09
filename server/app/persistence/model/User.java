@@ -29,7 +29,9 @@ public class User extends AbstractEntity {
 
 	private Integer authToken;
 
-	private String awsToken;
+	private String awsSecretKey;
+
+    private String awsAccessKey;
 
 	private String digitalOceanToken;
 	
@@ -84,13 +86,22 @@ public class User extends AbstractEntity {
 			this.authToken = null;
 	}
 
-	public String getAwsToken() {
-		return awsToken;
+	public String getAwsAccessKey() {
+		return awsAccessKey;
 	}
 
-	public void setAwsToken(String awsToken) {
-		this.awsToken = awsToken;
+	public void setAwsAccessKey(String awsToken) {
+		this.awsAccessKey = awsToken;
 	}
+
+
+    public String getAwsSecretKey() {
+        return awsSecretKey;
+    }
+
+    public void setAwsSecretKey(String awsSecretToken) {
+        this.awsSecretKey = awsSecretToken;
+    }
 
 	public String getDigitalOceanToken() {
 		return digitalOceanToken;

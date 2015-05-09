@@ -10,7 +10,8 @@ let Dashboard = React.createClass({
         userToken: "",
         userEmail: "",
         userDOToken: "",
-        userAWSToken: ""
+        userAWSAccessKey: "",
+        userAWSSecretKey: ""
       }
     },
     componentDidMount() {
@@ -36,7 +37,10 @@ let Dashboard = React.createClass({
           <Col xs={8} xsOffset={2}><p>DO Token: {this.state.userDOToken}</p></Col>
         </Row>
         <Row className='show-grid'>
-          <Col xs={6} xsOffset={2}><p>AWS Token: {this.state.userAWSToken}</p></Col>
+          <Col xs={6} xsOffset={2}><p>AWS Access Key: {this.state.userAWSAccessKey}</p></Col>
+        </Row>
+        <Row className='show-grid'>
+          <Col xs={6} xsOffset={2}><p>AWS Secret Key: {this.state.userAWSSecretKey}</p></Col>
         </Row>
       </Grid>
       );

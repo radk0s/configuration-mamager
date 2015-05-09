@@ -48,7 +48,8 @@ public class RegistrationController extends Controller {
 		User user = new User();
 		user.setEmail(register.email);
 		user.setPassword(register.password);
-		user.setAwsToken(register.awsToken);
+		user.setAwsAccessKey(register.awsAccessKey);
+        user.setAwsSecretKey(register.awsSecretKey);
 		user.setDigitalOceanToken(register.doToken);
 		return user;
 	}
@@ -65,7 +66,9 @@ public class RegistrationController extends Controller {
 		@Constraints.Required
 		public String passwordConfirmation;
 
-		public String awsToken;
+        public String awsAccessKey;
+
+		public String awsSecretKey;
 
 		public String doToken;
 

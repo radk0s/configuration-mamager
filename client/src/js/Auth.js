@@ -50,13 +50,14 @@ module.exports = {
       }
     }
   },
-  register (email, password, awsToken, doToken, cb) {
+  register (email, password, doToken, awsAccessKey, awsSecretKey, cb) {
 
     request.post('/signup')
       .send({email:email,
         password: password,
         passwordConfirmation: password,
-        awsToken: awsToken,
+        awsSecretKey: awsSecretKey,
+        awsAccessKey: awsAccessKey,
         doToken: doToken})
       .set('Accept', 'application/json')
       .end(function(err, res){

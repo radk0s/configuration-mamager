@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Map.Entry;
 import java.util.TimeZone;
-
+import java.util.Iterator;
 import persistence.model.User;
 import persistence.services.UserPersistenceService;
 import play.libs.F.Function;
@@ -43,7 +43,7 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 	 */
 	private String service = "ec2";
 	private String host = Urls.AWS_HOST.toString();
-	private String region = "us-east-1";
+	private String region = "eu-central-1";
 	private String endpoint = Urls.AWS_URL.toString();
 
 	private static Function<WSResponse, Result> function;
@@ -59,7 +59,7 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 	/**
 	 * Documentation: http://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateImage.html
 	 * 
-	 * Example: https://ec2.amazonaws.com/?Action=CreateImage &Description=Standard+Web+Server+v1.0
+	 * Example: https://ec2.amazonaws.com/?Action=CreateImage&Description=Standard+Web+Server+v1.0
 	 * &InstanceId=i-10a64379 &Name=standard-web-server-v1.0 &AUTHPARAMS
 	 * 
 	 * Our API - without Action parameter and AUTHPARAMS
@@ -67,8 +67,11 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 	@Override
 	public Promise<Result> createInstance() throws Exception {
 		JsonNode json = createJson("CreateImage", request().body().asJson());
-		WSRequestHolder request = createRequest("POST", json.asText(), "application/x-amz-json-1.0");
-		return request.post(request().body().asJson()).map(function);
+        System.out.println(json);
+
+        WSRequestHolder request = createRequest("POST", json.asText(), "application/x-amz-json-1.0");
+        System.out.println(request);
+        return request.post(json).map(function);
 	}
 
 	/**
@@ -89,8 +92,9 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 	private JsonNode createJson(String actionName, JsonNode requestJson) {
 		ObjectNode json = Json.newObject();
 		json.put("Action", actionName);
-		while (requestJson.fields().hasNext()) {
-			Entry<String, JsonNode> field = requestJson.fields().next();
+        Iterator<Entry<String, JsonNode>> nodeIterator = requestJson.fields();
+		while (nodeIterator.hasNext()) {
+			Entry<String, JsonNode> field = nodeIterator.next();
 			json.put(field.getKey(), field.getValue());
 		}
 		json.put("Version", "2015-03-01");
@@ -160,7 +164,6 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 	// This version makes a GET/POST request and passes the signature
 	// in the Authorization header.
 	public WSRequestHolder createRequest(String method, String requestParameters, String contentType) throws Exception {
-
 		// ************* REQUEST VALUES *************
 		// String method = "GET";
 
@@ -172,8 +175,8 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 		// Read AWS access key from env. variables or configuration file. Best practice is NOT
 		// to embed credentials in code.
 		User user = getUserFromRequest();
-		String accessKey = user.getEmail();
-		String secretKey = user.getAwsToken();
+		String accessKey = user.getAwsAccessKey();
+		String secretKey = user.getAwsSecretKey();
 		// if access_key is None or secret_key is None:
 		// print "No access key is available."
 		// sys.exit()
@@ -230,7 +233,6 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 		}
 		// Step 7: Combine elements to create create canonical request
 		String canonicalRequest = method + "\n" + canonicalUri + "\n" + canonicalQuerystring + "\n" + canonicalHeaders + "\n" + signedHeaders + "\n" + payloadHash;
-
 		// ************* TASK 2: CREATE THE STRING TO SIGN*************
 		// Match the algorithm to the hashing algorithm you use, either SHA-1 or
 		// SHA-256 (recommended)
@@ -259,7 +261,6 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 		// and (for this scenario) "Authorization". "host" and "x-amz-date" must
 		// be included in the canonical_headers and signed_headers, as noted
 		// earlier. Order here is not significant.
-
 		if (method.equals("POST"))
 			request.setHeader("Content-Type", contentType);
 		request.setHeader("host", host);

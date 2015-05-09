@@ -32,12 +32,14 @@ public class Application extends Controller {
 
 
 		final long userToken = user != null ? user.getId() : 1;
-		final String userEmail = user != null ? user.getEmail() : "guest";
-		final String userDOToken = user != null ? user.getDigitalOceanToken() : "guest";
-		final String userAWSToken = user != null ? user.getAwsToken() : "guest";
+		final String userEmail = user != null ? user.getEmail() : "";
+		final String userDOToken = user != null ? user.getDigitalOceanToken() : "";
+		final String userAWSAccessKey = user != null ? user.getAwsAccessKey() : "";
+        final String userAWSSecretKey = user != null ? user.getAwsSecretKey() : "";
 
-		return ok("{\"userToken\":\"" + userToken + "\",\"userEmail\":\"" + userEmail + "\",\"userDOToken\":\""
-				+ userDOToken + "\",\"userAWSToken\":\"" + userAWSToken + "\"}");
+
+        return ok("{\"userToken\":\"" + userToken + "\",\"userEmail\":\"" + userEmail + "\",\"userDOToken\":\""
+				+ userDOToken + "\",\"userAWSAccessKey\":\"" + userAWSAccessKey+ "\",\"userAWSSecretKey\":\"" + userAWSSecretKey + "\"}");
 	}
 
 	//TODO - Mock method, replace with real implementation

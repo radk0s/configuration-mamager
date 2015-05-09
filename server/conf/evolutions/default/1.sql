@@ -21,7 +21,8 @@ create table USERS (
   FIRST_NAME                varchar(255),
   LAST_NAME                 varchar(255),
   auth_token                integer,
-  aws_token                 varchar(255),
+  aws_secret_key            varchar(255),
+  aws_access_key            varchar(255),
   digital_ocean_token       varchar(255),
   constraint pk_USERS primary key (id))
 ;
