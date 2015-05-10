@@ -13,7 +13,7 @@ POST        /login         @controllers.security.AuthenticationController.authen
 GET         /logout        @controllers.security.AuthenticationController.logout()
 
 # User Registration
-POST       /signup         @controllers.security.RegistrationController.signUp()
+POST        /signup         @controllers.security.RegistrationController.signUp()
 
 
 GET			/instances/do							@controllers.communication.DigitalOceanCommunicationModule.listInstances()
