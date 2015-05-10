@@ -15,6 +15,7 @@ GET         /logout        @controllers.security.AuthenticationController.logout
 # User Registration
 POST        /signup         @controllers.security.RegistrationController.signUp()
 
+GET           /instances/all               @controllers.communication.CommonCommunicationModule.listAllInstances()
 
 GET			/instances/do							@controllers.communication.DigitalOceanCommunicationModule.listInstances()
 PUT 		/instances/do							@controllers.communication.DigitalOceanCommunicationModule.createInstance()
