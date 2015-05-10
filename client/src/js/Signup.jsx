@@ -1,14 +1,79 @@
 const React = require('react');
 const auth = require('./Auth.js');
 const {Grid, Row, Col, Input, Button} = require('react-bootstrap');
+const Joi = require('joi');
 
 class Signup extends React.Component {
 
+  validateEmail() {
+    var emailState ="";
+    Joi.validate(this.state.email, Joi.string().email(), function(err, value) {
+      if(err != null) {
+        emailState = 'error'
+      } else {
+        emailState = 'success'
+      }
+    });
+    return emailState;
+  }
+
+  validatePassword() {
+    var passState ="";
+    Joi.validate(this.state.pass, Joi.string().regex(/[a-zA-Z0-9]{3,30}/), function(err, value) {
+      if(err != null) {
+        passState = 'error'
+      } else {
+        passState = 'success'
+      }
+    });
+    return passState;
+  }
+
+  validateToken(token) {
+    var tokenState = "";
+    var value;
+    if(token === "AWSAccessKey") {
+      value = this.state.AWSAccessKey;
+    } else if(token === "AWSSecretKey") {
+      value = this.state.AWSSecretKey;
+    } else {
+      value = this.state.DOToken;
+    }
+    Joi.validate(value, Joi.string().required(), function(err, value) {
+      if(err != null) {
+        tokenState = 'error'
+      } else {
+        tokenState = 'success'
+      }
+    });
+    return tokenState;
+  }
+
+  handleChange(event) {
+    var error = this.state.error;
+    var success = this.state.success;
+    this.setState({
+      error: error,
+      success: success,
+      email: this.refs.email.getValue(),
+      pass: this.refs.pass.getValue(),
+      DOToken: this.refs.DOToken.getValue(),
+      AWSAccessKey: this.refs.AWSAccessKey.getValue(),
+      AWSSecretKey: this.refs.AWSSecretKey.getValue()
+    });
+  }
+
   constructor () {
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.state = {
       error: false,
-      success: false
+      success: false,
+      email: '',
+      pass: '',
+      DOToken: '',
+      AWSAccessKey: '',
+      AWSSecretKey: ''
     };
   }
 
@@ -43,19 +108,19 @@ class Signup extends React.Component {
     return (
     <form onSubmit={this.handleSubmit}>
       <Row>
-        <Input type='text' label='Email' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'email'}/>
+        <Input type='text' label='Email' labelClassName='col-xs-offset-3 col-xs-1' value={this.state.email} wrapperClassName='col-xs-2' ref={'email'} onChange={this.handleChange} bsStyle={this.validateEmail()}/>
       </Row>
       <Row>
-        <Input type='password' label='Password' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'pass'}/>
+        <Input type='password' label='Password' labelClassName='col-xs-offset-3 col-xs-1' value={this.state.pass} wrapperClassName='col-xs-2' ref={'pass'} onChange={this.handleChange} bsStyle={this.validatePassword()}/>
       </Row>
       <Row>
-        <Input type='text' label='DOToken' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'DOToken'}/>
+        <Input type='text' label='DOToken' labelClassName='col-xs-offset-3 col-xs-1' valie={this.state.DOToken} wrapperClassName='col-xs-2' ref={'DOToken'} onChange={this.handleChange} bsStyle={this.validateToken("DOToken")}/>
       </Row>
       <Row>
-        <Input type='text' label='AWSAccessKey' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSAccessKey'}/>
+        <Input type='text' label='AWSAccessKey' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSAccessKey'} onChange={this.handleChange} bsStyle={this.validateToken("AWSAccessKey")}/>
       </Row>
       <Row>
-        <Input type='text' label='AWSSecretKey' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSSecretKey'}/>
+        <Input type='text' label='AWSSecretKey' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSSecretKey'} onChange={this.handleChange} bsStyle={this.validateToken("AWSSecretKey")}/>
       </Row>
       <Row/>
       <Row>

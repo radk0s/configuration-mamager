@@ -1,14 +1,52 @@
 const React = require('react');
 const auth = require('./Auth.js');
+const Joi = require('joi');
 const {Grid, Row, Col, Input, Button} = require('react-bootstrap');
 
 class Login extends React.Component {
 
+  validateEmail() {
+    var emailState ="";
+    Joi.validate(this.state.email, Joi.string().email(), function(err, value) {
+      if(err != null) {
+        emailState = 'error'
+      } else {
+        emailState = 'success'
+      }
+    });
+    return emailState;
+  }
+
+  validatePassword() {
+    var passState ="";
+    Joi.validate(this.state.pass, Joi.string().regex(/[a-zA-Z0-9]{3,30}/), function(err, value) {
+      if(err != null) {
+        passState = 'error'
+      } else {
+        passState = 'success'
+      }
+    });
+    return passState;
+  }
+
+
   constructor () {
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleChange = this.handleChange.bind(this);
     this.state = {
-      error: false
+      error: false,
+      email: '',
+      pass: ''
     };
+  }
+
+  handleChange(event) {
+    var error = this.state.error;
+    this.setState({
+      error: error,
+      email: this.refs.email.getValue(),
+      pass: this.refs.pass.getValue()
+    });
   }
 
   handleSubmit (event) {
@@ -32,10 +70,10 @@ class Login extends React.Component {
     return (
       <form onSubmit={this.handleSubmit}>
         <Row>
-          <Input type='text' label='Email' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'email'}/>
+          <Input type='text' label='Email' labelClassName='col-xs-offset-3 col-xs-1' value={this.state.email} wrapperClassName='col-xs-2' ref={'email'} onChange={this.handleChange} bsStyle={this.validateEmail()}/>
         </Row>
         <Row>
-          <Input type='password' label='Password' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'pass'}/>
+          <Input type='password' label='Password' labelClassName='col-xs-offset-3 col-xs-1' value={this.state.pass} wrapperClassName='col-xs-2' ref={'pass'} onChange={this.handleChange} bsStyle={this.validatePassword()}/>
         </Row>
         <Row/>
         <Row>
