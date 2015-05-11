@@ -8,7 +8,7 @@ public enum Urls {
 	},
 	AWS_URL{
 		public String toString(){
-			return "https://ec2.amazonaws.com/";
+			return "ec2.eu-central-1.amazonaws.com";
 		}
 	},
 	AWS_HOST{
