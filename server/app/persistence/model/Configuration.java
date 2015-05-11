@@ -45,6 +45,7 @@ public class Configuration extends AbstractEntity {
 	}
 
 	public void setUser(User user) {
+		user.getConfigurations().add(this);
 		this.user = user;
 	}
 
