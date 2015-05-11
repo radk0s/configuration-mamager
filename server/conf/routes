@@ -29,6 +29,10 @@ DELETE 		/instances/aws      					@controllers.communication.AwsCommunicationMod
 POST 		/instances/aws/run						@controllers.communication.AwsCommunicationModule.runInstance()
 POST 		/instances/aws/stop						@controllers.communication.AwsCommunicationModule.stopInstance()
 
+GET           /configuration           			@controllers.configuration.ConfigurationController.getConfigurations()
+POST          /configuration               			@controllers.configuration.ConfigurationController.createConfiguration()
+DELETE        /configuration               			@controllers.configuration.ConfigurationController.deleteConfiguration()
+
 
 # Map static resources from the /public folder to the /assets URL path
 GET         /*file                           		controllers.Assets.at(path="/public", file)
