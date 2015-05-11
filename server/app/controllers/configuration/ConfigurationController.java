@@ -3,6 +3,7 @@ package controllers.configuration;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.inject.Inject;
 import controllers.security.AuthenticationController;
+import controllers.security.Secured;
 import persistence.model.User;
 import persistence.services.ConfigurationPersistenceService;
 import persistence.services.UserPersistenceService;
@@ -21,7 +22,7 @@ public class ConfigurationController extends Controller {
     @Inject
     ConfigurationPersistenceService configurationService;
 
-    @Authenticated
+    @Authenticated(Secured.class)
     public Result createConfiguration() {
 
         final Form<Configuration> configurationForm = Form.form(Configuration.class).bindFromRequest();
@@ -31,26 +32,27 @@ public class ConfigurationController extends Controller {
         }
 
         final Configuration configuration = configurationForm.get();
-        final User user = getUserFromRequest();
 
         if( configurationService.findConfigurationByName(configuration.name) != null ) {
             return badRequest("Configuration " + configuration.name + " already exists!");
         }
 
         persistence.model.Configuration config = ConfigurationTranslator.convert(configuration);
+        final User user = getUserFromRequest();
+        config.setUser(user);
 
         configurationService.save(config);
 
         return ok(String.valueOf(config.getId()));
     }
 
-    @Authenticated
+    @Authenticated(Secured.class)
     public Result getConfigurations() {
         final User user = getUserFromRequest();
         return ok(Json.toJson(configurationService.getConfigurationsByUser(user)));
     }
 
-    @Authenticated
+    @Authenticated(Secured.class)
     public Result deleteConfiguration() {
         final JsonNode json = request().body().asJson();
         final String configurationName = json.get("name").asText();
