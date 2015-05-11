@@ -10,4 +10,6 @@ public interface ConfigurationPersistenceService extends BasePersistenceService<
 	List<Configuration> getConfigurationsByUser(User user);
 
 	void deleteByName(String name);
+
+	Configuration findConfigurationByName(String name);
 }

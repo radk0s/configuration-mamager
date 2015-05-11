@@ -6,14 +6,12 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
-import javax.persistence.Table;
 
 import utils.Hasher;
 
 import com.google.common.collect.Lists;
 
 @Entity
-@Table(name = "USERS")
 public class User extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -41,7 +39,7 @@ public class User extends AbstractEntity {
 
 	private String digitalOceanToken;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
 	private List<Configuration> configurations = Lists.newArrayList();
 
 	public String getEmail() {
