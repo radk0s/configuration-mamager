@@ -2,7 +2,7 @@ const React = require('react');
 const auth = require("./Auth.js");
 const request = require('superagent');
 const {Grid, Row, Col, Table, Button} = require('react-bootstrap');
-
+const async = require("async");
 
 
 let Machines = React.createClass({
@@ -13,16 +13,45 @@ let Machines = React.createClass({
     },
     componentDidMount() {
       this.listMachines();
+      this.setState({
+        interval: setInterval(this.listMachines,2000)
+      });
+    },
+    componentWillUnmount() {
+      clearInterval(this.interval);
     },
     listMachines() {
-      request
-        .get('/instances/do')
-        .set('authToken', auth.getToken())
-        .set('Accept', 'application/json')
-        .end((err, res) => {
-          if (typeof res != "undefined" || res != null) {
-            this.setState(res.body);
+      let component = this;
+      async.parallel({
+          DO: function(callback){
+            request
+              .get('/instances/do')
+              .set('authToken', auth.getToken())
+              .set('Accept', 'application/json')
+              .end((err, res) => {
+                if (typeof res != "undefined" || res != null) {
+                  callback(null, res.body);
+                }
+              });
+          },
+          AWS: function(callback){
+            request
+              .get('/instances/aws')
+              .set('authToken', auth.getToken())
+              .set('Accept', 'application/json')
+              .end((err, res) => {
+                if (typeof res != "undefined" || res != null) {
+                  callback(null, res.body);
+                }
+              });
           }
+        },
+        function(err, results) {
+          console.log(results);
+          component.setState({
+            DO: results.DO,
+            AWS: results.AWS
+          });
         });
     },
     createMachine() {
@@ -43,18 +72,53 @@ let Machines = React.createClass({
         })
         .end((err, res) => {
           console.log(res);
-          setTimeout(this.listMachines,500);
         });
     },
 
     render() {
 
-        if (typeof this.state.droplets == "undefined" || this.state.droplets == null || this.state.droplets.length == 0) {
+        if (typeof this.state.DO == "undefined" ||
+          typeof this.state.DO.droplets == "undefined" ||
+          this.state.DO.droplets == null ||
+          this.state.DO.droplets.length == 0) {
             return <p>No machines found for you.</p>
         }
 
-        var listItems = this.state.droplets.map(function(item) {
+        var listDOItems = this.state.DO.droplets.map(function(item) {
             console.log(item);
+            function deleteMachine() {
+              request
+                .del('/instances/do')
+                .set('authToken', auth.getToken())
+                .set('Accept', 'application/json')
+                .send({ instanceId: item.id})
+                .end((err, res) => {
+                  console.log(err);
+                  console.log(res);
+                });
+            }
+          function stopMachine() {
+            request
+              .post('/instances/do/stop')
+              .set('authToken', auth.getToken())
+              .set('Accept', 'application/json')
+              .send({ instanceId: item.id})
+              .end((err, res) => {
+                console.log(err);
+                console.log(res);
+              });
+          }
+          function runMachine(run) {
+            request
+              .post('/instances/do/run')
+              .set('authToken', auth.getToken())
+              .set('Accept', 'application/json')
+              .send({ instanceId: item.id})
+              .end((err, res) => {
+                console.log(err);
+                console.log(res);
+              });
+          }
             return (
               <tr>
                 <td>{item.name}</td>
@@ -63,9 +127,19 @@ let Machines = React.createClass({
                 <td>{item.status}</td>
                 <td>{item.memory}</td>
                 <td>{item.created_at}</td>
+                <td>
+                  <Button bsSize='large' onClick={runMachine}>Run</Button>
+                  <Button bsSize='large' onClick={stopMachine}>Stop</Button>
+                  <Button bsSize='large' onClick={deleteMachine}>Terminate</Button>
+                </td>
               </tr>
               )
         });
+
+      var listAWSItems = this.state.AWS.map(function(item) {
+        console.log(item);
+
+      });
         return(
           <div>
             <Table responsive>
@@ -77,10 +151,11 @@ let Machines = React.createClass({
                   <th>Status</th>
                   <th>Memory</th>
                   <th>Created At</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {listItems}
+                {listDOItems}
               </tbody>
             </Table>
             <Button bsSize='large' onClick={this.createMachine}>Create instance</Button>

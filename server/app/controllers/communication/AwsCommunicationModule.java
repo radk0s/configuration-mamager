@@ -127,9 +127,10 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 
 	private ObjectNode createListInstancesResponseJson(List<Reservation> reservations) {
 		ObjectNode json = Json.newObject();
-		int reservationNumber = 1;
+		Integer reservationNumber = 1;
 		for (Reservation reservation : reservations) {
-			json.put("reservation." + reservationNumber, Json.toJson(reservation.getInstances()));
+			json.put(reservationNumber.toString(), Json.toJson(reservation.getInstances()));
+            reservationNumber++;
 		}
 		return json;
 	}

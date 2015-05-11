@@ -44,6 +44,7 @@
     "react-bootstrap": "^0.16.1",
     "bootstrap": "",
     "superagent": "",
-    "react-router-bootstrap": ""
+    "react-router-bootstrap": "",
+    "async": ""
   }
 }
