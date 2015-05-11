@@ -1,5 +1,7 @@
 package persistence.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.Entity;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
@@ -13,6 +15,8 @@ public class Configuration extends AbstractEntity {
 	@Lob
 	private String data;
 	private Provider provider;
+
+	@JsonIgnore
 	@ManyToOne
 	private User user;
 
@@ -45,6 +49,7 @@ public class Configuration extends AbstractEntity {
 	}
 
 	public void setUser(User user) {
+		user.getConfigurations().add(this);
 		this.user = user;
 	}
 
