@@ -6,7 +6,7 @@
 create table configuration (
   id                        bigint auto_increment not null,
   name                      varchar(255),
-  data                      clob,
+  data                      longtext,
   provider                  integer,
   user_id                   bigint,
   constraint ck_configuration_provider check (provider in (0,1)),
@@ -35,11 +35,11 @@ create index ix_configuration_user_1 on configuration (user_id);
 
 # --- !Downs
 
-SET REFERENTIAL_INTEGRITY FALSE;
+SET FOREIGN_KEY_CHECKS=0;
 
-drop table if exists configuration;
+drop table configuration;
 
-drop table if exists user;
+drop table user;
 
-SET REFERENTIAL_INTEGRITY TRUE;
+SET FOREIGN_KEY_CHECKS=1;
 

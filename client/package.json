@@ -45,6 +45,8 @@
     "bootstrap": "",
     "superagent": "",
     "react-router-bootstrap": "",
-    "async": ""
+    "async": "",
+    "underscore": "",
+    "moment": ""
   }
 }

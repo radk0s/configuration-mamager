@@ -3,12 +3,14 @@ const auth = require("./Auth.js");
 const request = require('superagent');
 const {Grid, Row, Col, Table, Button} = require('react-bootstrap');
 const async = require("async");
-
+const _ = require('underscore');
+const moment = require('moment');
 
 let Machines = React.createClass({
     getInitialState() {
         return {
-            droplets: []
+            DO: [],
+            AWS: []
         }
     },
     componentDidMount() {
@@ -30,7 +32,7 @@ let Machines = React.createClass({
               .set('Accept', 'application/json')
               .end((err, res) => {
                 if (typeof res != "undefined" || res != null) {
-                  callback(null, res.body);
+                  callback(null, res.body.droplets);
                 }
               });
           },
@@ -41,17 +43,16 @@ let Machines = React.createClass({
               .set('Accept', 'application/json')
               .end((err, res) => {
                 if (typeof res != "undefined" || res != null) {
-                  callback(null, res.body);
+                  callback(null, _.values(res.body));
                 }
               });
           }
         },
         function(err, results) {
-          console.log(results);
           component.setState({
             DO: results.DO,
             AWS: results.AWS
-          });
+          }, () => { console.log("results fetched")});
         });
     },
     createMachine() {
@@ -76,86 +77,97 @@ let Machines = React.createClass({
     },
 
     render() {
+      function deleteMachine(provider, id) {
+        request
+          .del(`/instances/${provider}`)
+          .set('authToken', auth.getToken())
+          .set('Accept', 'application/json')
+          .send({ instanceId: id})
+          .end((err, res) => {
+            console.log(err);
+            console.log(res);
+          });
+      }
+      function stopMachine(provider, id) {
+        request
+          .post(`/instances/${provider}/stop`)
+          .set('authToken', auth.getToken())
+          .set('Accept', 'application/json')
+          .send({ instanceId: id})
+          .end((err, res) => {
+            console.log(err);
+            console.log(res);
+          });
+      }
+      function runMachine(provider, id) {
+        request
+          .post(`/instances/${provider}/run`)
+          .set('authToken', auth.getToken())
+          .set('Accept', 'application/json')
+          .send({ instanceId: id})
+          .end((err, res) => {
+            console.log(err);
+            console.log(res);
+          });
+      }
 
-        if (typeof this.state.DO == "undefined" ||
-          typeof this.state.DO.droplets == "undefined" ||
-          this.state.DO.droplets == null ||
-          this.state.DO.droplets.length == 0) {
-            return <p>No machines found for you.</p>
-        }
-
-        var listDOItems = this.state.DO.droplets.map(function(item) {
-            console.log(item);
-            function deleteMachine() {
-              request
-                .del('/instances/do')
-                .set('authToken', auth.getToken())
-                .set('Accept', 'application/json')
-                .send({ instanceId: item.id})
-                .end((err, res) => {
-                  console.log(err);
-                  console.log(res);
-                });
-            }
-          function stopMachine() {
-            request
-              .post('/instances/do/stop')
-              .set('authToken', auth.getToken())
-              .set('Accept', 'application/json')
-              .send({ instanceId: item.id})
-              .end((err, res) => {
-                console.log(err);
-                console.log(res);
-              });
-          }
-          function runMachine(run) {
-            request
-              .post('/instances/do/run')
-              .set('authToken', auth.getToken())
-              .set('Accept', 'application/json')
-              .send({ instanceId: item.id})
-              .end((err, res) => {
-                console.log(err);
-                console.log(res);
-              });
-          }
+        var listDOItems = this.state.DO.map(function(item) {
             return (
               <tr>
+                <td>DO</td>
                 <td>{item.name}</td>
                 <td>{item.image.distribution}</td>
                 <td>{item.networks.v4[0].ip_address}</td>
                 <td>{item.status}</td>
                 <td>{item.memory}</td>
-                <td>{item.created_at}</td>
+                <td>{moment(item.created_at).format("dddd, MMMM Do YYYY, h:mm:ss a")}</td>
                 <td>
-                  <Button bsSize='large' onClick={runMachine}>Run</Button>
-                  <Button bsSize='large' onClick={stopMachine}>Stop</Button>
-                  <Button bsSize='large' onClick={deleteMachine}>Terminate</Button>
+                  <Button bsSize='large' onClick={() => runMachine('do', item.id)}>Run</Button>
+                  <Button bsSize='large' onClick={() => stopMachine('do', item.id)}>Stop</Button>
+                  <Button bsSize='large' onClick={() => deleteMachine('do', item.id)}>Terminate</Button>
                 </td>
               </tr>
               )
         });
 
       var listAWSItems = this.state.AWS.map(function(item) {
-        console.log(item);
-
+        let item = item[0];
+        return (
+          <tr>
+            <td>AWS</td>
+            <td>{item.instanceId}</td>
+            <td>{item.imageId}</td>
+            <td>{item.publicIpAddress}</td>
+            <td>{item.state.name}</td>
+            <td>{item.instanceType}</td>
+            <td>{moment(item.launchTime).format("dddd, MMMM Do YYYY, h:mm:ss a")}</td>
+            <td>
+              <Button bsSize='large' onClick={() => runMachine('aws', item.instanceId)}>Run</Button>
+              <Button bsSize='large' onClick={() => stopMachine('aws', item.instanceId)}>Stop</Button>
+              <Button bsSize='large' onClick={() => deleteMachine('aws', item.instanceId)}>Terminate</Button>
+            </td>
+          </tr>
+        )
       });
+
         return(
           <div>
             <Table responsive>
               <thead>
                 <tr>
-                  <th>Name</th>
-                  <th>Distribution</th>
+                  <th>Provider</th>
+                  <th>Name/Id</th>
+                  <th>Image</th>
                   <th>IPv4</th>
                   <th>Status</th>
-                  <th>Memory</th>
-                  <th>Created At</th>
+                  <th>Size</th>
+                  <th>Last Run At</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {listDOItems}
+                {listAWSItems}
               </tbody>
             </Table>
             <Button bsSize='large' onClick={this.createMachine}>Create instance</Button>
