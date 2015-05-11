@@ -15,7 +15,8 @@ libraryDependencies ++= Seq(
   cache,
   javaWs,
   "mysql" % "mysql-connector-java" % "5.1.18",
-  "com.google.inject" % "guice" % "3.0"
+  "com.google.inject" % "guice" % "3.0",
+  "com.amazonaws" % "aws-java-sdk" % "1.9.6"
 )
 
 
