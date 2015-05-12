@@ -10,7 +10,7 @@ GET         /hello         @controllers.Application.hello()
 
 
 POST        /login         @controllers.security.AuthenticationController.authenticate()
-GET         /logout        @controllers.security.AuthenticationController.logout()
+POST         /logout        @controllers.security.AuthenticationController.logout()
 
 # User Registration
 POST        /signup         @controllers.security.RegistrationController.signUp()
