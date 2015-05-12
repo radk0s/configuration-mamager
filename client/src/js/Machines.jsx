@@ -2,18 +2,31 @@ const React = require('react');
 const auth = require("./Auth.js");
 const request = require('superagent');
 const {Grid, Row, Col, Table, Button} = require('react-bootstrap');
+const ModalTrigger = require('react-bootstrap').ModalTrigger;
 const async = require("async");
 const _ = require('underscore');
 const moment = require('moment');
+const CreateInstance = require('./CreateInstance.jsx');
 
 let Machines = React.createClass({
     getInitialState() {
         return {
             DO: [],
-            AWS: []
+            AWS: [],
+            confs: []
         }
     },
     componentDidMount() {
+      let component = this;
+      request
+        .get('/configuration')
+        .set('authToken', auth.getToken())
+        .set('Accept', 'application/json')
+        .end((err, res) => {
+          component.setState({
+            confs: res.body
+          });
+        });
       this.listMachines();
       this.setState({
         interval: setInterval(this.listMachines,2000)
@@ -55,27 +68,6 @@ let Machines = React.createClass({
           }, () => { console.log("results fetched")});
         });
     },
-    createMachine() {
-      request
-        .put('/instances/do')
-        .set('authToken', auth.getToken())
-        .set('Accept', 'application/json')
-        .send({
-          "name": "example.com",
-          "region": "nyc3",
-          "size": "512mb",
-          "image": "ubuntu-14-04-x64",
-          "ssh_keys": null,
-          "backups": false,
-          "ipv6": true,
-          "user_data": null,
-          "private_networking": null
-        })
-        .end((err, res) => {
-          console.log(res);
-        });
-    },
-
     render() {
       function deleteMachine(provider, id) {
         request
@@ -170,7 +162,9 @@ let Machines = React.createClass({
                 {listAWSItems}
               </tbody>
             </Table>
-            <Button bsSize='large' onClick={this.createMachine}>Create instance</Button>
+            <ModalTrigger modal={<CreateInstance title={`Create Instance`} confs={_.values(this.state.confs)}/>} >
+              <Button bsSize='large'>Create instances</Button>
+            </ModalTrigger>
           </div>);
     }
 });
