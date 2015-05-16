@@ -10,7 +10,10 @@ module.exports =  React.createClass({
   getInitialState() {
     return {
       provider: 'DIGITAL_OCEAN',
-      saveConf: false
+      saveConf: false,
+      DORegions: [],
+      DOImages: [],
+      DOSizes: []
     }
   },
   handleSelectChange() {
@@ -20,7 +23,35 @@ module.exports =  React.createClass({
       console.log(this.state.provider);
     });
   },
+  componentDidMount() {
+    let self = this;
+    request.get('/regions/do')
+      .set('authToken', auth.getToken())
+      .end((err, res) => {
+        self.setState({
+          DORegions: res.body.regions
+        });
+      });
+    request.get('/images/do')
+      .set('authToken', auth.getToken())
+      .end((err, res) => {
+        self.setState({
+          DOImages: res.body.images
+        });
+      });
+    request.get('/sizes/do')
+      .set('authToken', auth.getToken())
+      .end((err, res) => {
+        self.setState({
+          DOSizes: res.body.sizes
+        });
+      });
+  },
+  componentDidUpdate() {
+    this.render();
+  },
   handleSelectConfChange() {
+
     let confId = parseInt(this.refs.configurations.getValue());
     console.log(confId);
     console.log(this.props.confs);
@@ -30,25 +61,43 @@ module.exports =  React.createClass({
     awsConf.provider = 'AWS';
     this.setState(awsConf);
   },
-  handleDOSubmit() {
+  handleDOSubmit(event) {
+
+    let configuration = {
+      "name": this.refs.name.getValue(),
+      "region": this.refs.region.getValue(),
+      "size": this.refs.size.getValue(),
+      "image": this.refs.image.getValue(),
+      "ssh_keys": null,
+      "backups": false,
+      "ipv6": true,
+      "user_data": null,
+      "private_networking": null
+    }
+
     request
       .put('/instances/do')
       .set('authToken', auth.getToken())
       .set('Accept', 'application/json')
-      .send({
-        "name": "example.com",
-        "region": "nyc3",
-        "size": "512mb",
-        "image": "ubuntu-14-04-x64",
-        "ssh_keys": null,
-        "backups": false,
-        "ipv6": true,
-        "user_data": null,
-        "private_networking": null
-      })
+      .send(configuration)
       .end((err, res) => {
         console.log(res);
       });
+
+    if(this.refs.saveConfig.getValue() === "yes") {
+      console.log("Saving configuration " + configuration.name);
+      request
+        .post('/configuration')
+        .set('authToken', auth.getToken())
+        .set('Accept', 'application/json')
+        .send({ name: 'DO-' + moment().format(),
+          provider: 'DIGITAL_OCEAN',
+          data: JSON.stringify(configuration)
+        })
+        .end((err, res) => {
+
+        });
+    }
   },
   handleAWSSubmit (event) {
     var imageId = this.refs.imageId.getValue();
@@ -94,7 +143,30 @@ module.exports =  React.createClass({
           <Input type='submit' value='Create AWS Instance'/>
         </form>;
       } else {
+        var regions = this.state.DORegions.map(function(item, index) {
+          return <option value={item.slug} key={index}>{item.name}</option>;
+        });
+        var images = this.state.DOImages.map(function(item, index) {
+          return <option value={item.slug} key={index}>{item.slug}</option>;
+        });
+        var sizes = this.state.DOSizes.map(function(item, index) {
+          return <option value={item.slug} key={index}>{item.slug}</option>;
+        });
         createForm = <form style={{width: '60%', 'margin-left': 10, 'margin-right': 'auto'}} onSubmit={this.handleDOSubmit}>
+          <Input type='text' value={this.state.name} onChange={() => { this.setState({name: this.refs.name.getValue()})}} label='name' ref={'name'}/>
+          <Input type='select' value={this.state.region} onChange={() => { this.setState({region: this.refs.region.getValue()})}} label='region' ref={'region'}>
+            {regions}
+          </Input>
+          <Input type='select' value={this.state.image} onChange={() => { this.setState({image: this.refs.image.getValue()})}} label='image' ref={'image'}>
+            {images}
+          </Input>
+          <Input type='select' value={this.state.size} onChange={() => { this.setState({size: this.refs.size.getValue()})}} label='size' ref={'size'}>
+            {sizes}
+          </Input>
+          <Input type='select' value={this.state.saveConfig} onChange={() => { this.setState({saveConfig: this.refs.saveConfig.getValue()})}} label='Save Configuration?' ref={'saveConfig'}>
+            <option value="no" key="1">No</option>
+            <option value="yes" key="2">Yes</option>
+          </Input>
           <Input type='submit' value='Create DO Instance'/>
         </form>
       }

@@ -17,6 +17,9 @@ import com.google.inject.Injector;
 
 import controllers.security.AuthenticationController;
 
+import static org.junit.Assert.*;
+import static play.test.Helpers.*;
+
 public class LoginTest extends WithApplication {
 
 	private UserPersistenceService userService;

@@ -8,6 +8,7 @@ const About = require('./About.jsx');
 const Dashboard = require('./Dashboard.jsx');
 const Signup = require('./Signup.jsx');
 const Machines = require('./Machines.jsx');
+const Configurations = require('./Configurations.jsx');
 const {Navbar, Nav, NavItem } = require('react-bootstrap');
 const NavItemLink = require('react-router-bootstrap').NavItemLink;
 
@@ -36,6 +37,7 @@ class App extends React.Component {
         <Nav navbar bsStyle="pills" activeKey={1}>
           {this.state.loggedIn ? (<NavItemLink to="dashboard">Dashboard</NavItemLink>):''}
           {this.state.loggedIn ? (<NavItemLink to="machines">Machines</NavItemLink>):''}
+          {this.state.loggedIn ? (<NavItemLink to="configurations">Configurations</NavItemLink>):''}
           <NavItemLink to="about">About</NavItemLink>
         </Nav>
         <Nav navbar right bsStyle="pills" activeKey={1}>
@@ -61,6 +63,7 @@ var routes = (
     <Route name="signup" handler={Signup}/>
     <Route name="dashboard" handler={Dashboard}/>
     <Route name="machines" handler={Machines}/>
+    <Route name="configurations" handler={Configurations}/>
     <DefaultRoute name="default" handler={Login}/>
   </Route>
 );
