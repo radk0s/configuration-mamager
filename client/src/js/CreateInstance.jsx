@@ -57,9 +57,10 @@ module.exports =  React.createClass({
     console.log(this.props.confs);
 
     let data = _.head(_.where(this.props.confs, {id: confId})).data;
-    let awsConf = JSON.parse(data);
-    awsConf.provider = 'AWS';
-    this.setState(awsConf);
+    if(this.state.provider === "AWS") {}
+    let conf = JSON.parse(data);
+    conf.provider = this.state.provider;
+    this.setState(conf);
   },
   handleDOSubmit(event) {
 
@@ -120,16 +121,19 @@ module.exports =  React.createClass({
       .end((err, res) => {
       });
 
-    request
-      .post('/configuration')
-      .set('authToken', auth.getToken())
-      .set('Accept', 'application/json')
-      .send({ name: 'AWS-' + moment().format(),
-        provider: 'AWS',
-        data: JSON.stringify(configuration)
-      })
-      .end((err, res) => {
-      });
+    if(this.refs.saveConfig.getValue() === "yes") {
+      request
+        .post('/configuration')
+        .set('authToken', auth.getToken())
+        .set('Accept', 'application/json')
+        .send({ name: 'AWS-' + moment().format(),
+          provider: 'AWS',
+          data: JSON.stringify(configuration)
+        })
+        .end((err, res) => {
+        });
+    }
+
   },
   render() {
     let createForm;
@@ -140,6 +144,10 @@ module.exports =  React.createClass({
           <Input type='text' value={this.state.instanceType} onChange={() => this.setState({instanceType: this.refs.instanceType.getValue()})} label='instanceType' ref={'instanceType'}/>
           <Input type='text' value={this.state.keyName} onChange={() => this.setState({keyName: this.refs.keyName.getValue()})} label='keyName' ref={'keyName'}/>
           <Input type='text' value={this.state.securityGroup} onChange={() => this.setState({securityGroup: this.refs.securityGroup.getValue()})} label='securityGroup' ref={'securityGroup'}/>
+          <Input type='select' value={this.state.saveConfig} onChange={() => { this.setState({saveConfig: this.refs.saveConfig.getValue()})}} label='Save Configuration?' ref={'saveConfig'}>
+            <option value="no" key="1">No</option>
+            <option value="yes" key="2">Yes</option>
+          </Input>
           <Input type='submit' value='Create AWS Instance'/>
         </form>;
       } else {
