@@ -3,30 +3,33 @@
 
 # --- !Ups
 
-create table TOKENS (
+create table configuration (
   id                        bigint auto_increment not null,
-  uuid                      varchar(255),
-  email                     varchar(255),
-  created_at                datetime,
-  expire_at                 datetime,
-  is_sign_up                tinyint(1) default 0,
-  constraint pk_TOKENS primary key (id))
+  name                      varchar(255),
+  data                      longtext,
+  provider                  integer,
+  user_id                   bigint,
+  constraint ck_configuration_provider check (provider in (0,1)),
+  constraint pk_configuration primary key (id))
 ;
 
-create table USERS (
+create table user (
   id                        bigint auto_increment not null,
   EMAIL                     varchar(255),
   PASSWORD                  integer,
-  PROVIDER                  varchar(255),
+  PROVIDER                  integer,
   FIRST_NAME                varchar(255),
   LAST_NAME                 varchar(255),
   auth_token                integer,
   aws_secret_key            varchar(255),
   aws_access_key            varchar(255),
   digital_ocean_token       varchar(255),
-  constraint pk_USERS primary key (id))
+  constraint ck_user_PROVIDER check (PROVIDER in (0,1)),
+  constraint pk_user primary key (id))
 ;
 
+alter table configuration add constraint fk_configuration_user_1 foreign key (user_id) references user (id) on delete restrict on update restrict;
+create index ix_configuration_user_1 on configuration (user_id);
 
 
 
@@ -34,9 +37,9 @@ create table USERS (
 
 SET FOREIGN_KEY_CHECKS=0;
 
-drop table TOKENS;
+drop table configuration;
 
-drop table USERS;
+drop table user;
 
 SET FOREIGN_KEY_CHECKS=1;
 

@@ -13,13 +13,15 @@ import play.mvc.Result;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.CreateImageRequest;
-import com.amazonaws.services.ec2.model.CreateImageResult;
-import com.amazonaws.services.ec2.model.DeregisterImageRequest;
 import com.amazonaws.services.ec2.model.Reservation;
 import com.amazonaws.services.ec2.model.RunInstancesRequest;
+import com.amazonaws.services.ec2.model.RunInstancesResult;
 import com.amazonaws.services.ec2.model.StopInstancesRequest;
 import com.amazonaws.services.ec2.model.StopInstancesResult;
+import com.amazonaws.services.ec2.model.StartInstancesRequest;
+import com.amazonaws.services.ec2.model.StartInstancesResult;
+import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
+import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
@@ -40,46 +42,51 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 	}
 
 	/**
-	 * REQUEST BODY example: { "instanceId":"i-10a64379", "name":"standard-web-server-v1.0"}
-	 * 
-	 * RESPONSE BODY example: {"imageID":"ami-60a54009"}
-	 */
+	 * REQUEST BODY example: { "imageId":"i-10a64379", "instanceType":"t2.micro", "keyName": "keyName", "securityGroup": "securityGroup"}
+	 **/
 
 	@Override
 	public Promise<Result> createInstance() {
-		JsonNode json = request().body().asJson();
-		AmazonEC2Client amazonEC2Client = createEC2Client();
-		CreateImageRequest createImageRequest = new CreateImageRequest();
+        JsonNode json = request().body().asJson();
+        AmazonEC2Client amazonEC2Client = createEC2Client();
 
-		String instanceId = json.get("instanceId").asText();
-		String name = json.get("name").asText();
-		createImageRequest.withInstanceId(instanceId).withName(name);
+        RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
 
-		CreateImageResult createImageResult = amazonEC2Client.createImage(createImageRequest);
+        String imageId = json.get("imageId").asText();
+        String instanceType = json.get("instanceType").asText();
+        String keyName = json.get("keyName").asText();
+        String securityGroup = json.get("securityGroup").asText();
 
-		ObjectNode responseJson = Json.newObject();
-		responseJson.put("imageId", createImageResult.getImageId());
-		return wrapResultAsPromise(ok(responseJson));
+        runInstancesRequest.withImageId(imageId)
+                .withInstanceType(instanceType)
+                .withMinCount(1)
+                .withMaxCount(1)
+                .withKeyName(keyName)
+                .withSecurityGroups("default");
+
+        RunInstancesResult runInstancesResult = amazonEC2Client.runInstances(runInstancesRequest);
+        JsonNode responseJson = Json.toJson(runInstancesResult.getReservation());
+
+        return wrapResultAsPromise(ok(responseJson));
 	}
 
 	/**
-	 * REQUEST BODY example: { "imageId":"ami-60a54009", "keyName":"my-key-pair", "instanceType":"t2.micro" }
+	 * REQUEST BODY example: { "instanceId":"ami-60a54009"}
 	 */
 	@Override
 	public Promise<Result> runInstance() {
+        JsonNode json = request().body().asJson();
+        AmazonEC2Client amazonEC2Client = createEC2Client();
 
-		JsonNode json = request().body().asJson();
-		AmazonEC2Client amazonEC2Client = createEC2Client();
+        StartInstancesRequest startInstancesRequest = new StartInstancesRequest();
 
-		RunInstancesRequest runInstancesRequest = new RunInstancesRequest();
+        String instanceId = json.get("instanceId").asText();
+        startInstancesRequest.withInstanceIds(Lists.newArrayList(instanceId));
 
-		String imageId = json.get("imageId").asText();
-		String instanceType = json.get("instanceType").asText();
-		String keyName = json.get("keyName").asText();
-		runInstancesRequest.withImageId(imageId).withInstanceType(instanceType).withMinCount(1).withMaxCount(1).withKeyName(keyName).withSecurityGroups("default");
+        StartInstancesResult startInstancesResult = amazonEC2Client.startInstances(startInstancesRequest);
+        JsonNode responseJson = Json.toJson(startInstancesResult.getStartingInstances());
 
-		ObjectNode responseJson = createListInstancesResponseJson(Lists.newArrayList(amazonEC2Client.runInstances(runInstancesRequest).getReservation()));
-		return wrapResultAsPromise(ok(responseJson));
+        return wrapResultAsPromise(ok(responseJson));
 	}
 
 	/**
@@ -102,19 +109,22 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 	}
 
 	/**
-	 * REQUEST BODY example: { "imageId":"ami-4fa54026"}
+	 * REQUEST BODY example: { "instanceId":"i-10a64379"}
 	 */
 	@Override
 	public Promise<Result> deleteInstance() {
-		JsonNode json = request().body().asJson();
-		AmazonEC2Client amazonEC2Client = createEC2Client();
-		DeregisterImageRequest deregisterImageRequest = new DeregisterImageRequest();
+        JsonNode json = request().body().asJson();
+        AmazonEC2Client amazonEC2Client = createEC2Client();
 
-		String imageId = json.get("imageId").asText();
-		deregisterImageRequest.withImageId(imageId);
+        TerminateInstancesRequest terminateInstancesRequest = new TerminateInstancesRequest();
 
-		amazonEC2Client.deregisterImage(deregisterImageRequest);
-		return wrapResultAsPromise(ok());
+        String instanceId = json.get("instanceId").asText();
+        terminateInstancesRequest.withInstanceIds(Lists.newArrayList(instanceId));
+
+        TerminateInstancesResult terminateInstancesResult = amazonEC2Client.terminateInstances(terminateInstancesRequest);
+        JsonNode responseJson = Json.toJson(terminateInstancesResult.getTerminatingInstances());
+
+        return wrapResultAsPromise(ok(responseJson));
 	}
 
 	@Override
@@ -127,9 +137,10 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 
 	private ObjectNode createListInstancesResponseJson(List<Reservation> reservations) {
 		ObjectNode json = Json.newObject();
-		int reservationNumber = 1;
+		Integer reservationNumber = 1;
 		for (Reservation reservation : reservations) {
-			json.put("reservation." + reservationNumber, Json.toJson(reservation.getInstances()));
+			json.put(reservationNumber.toString(), Json.toJson(reservation.getInstances()));
+            reservationNumber++;
 		}
 		return json;
 	}

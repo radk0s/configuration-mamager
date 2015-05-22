@@ -1,5 +1,6 @@
 package controllers.communication;
 
+import controllers.security.Secured;
 import persistence.model.User;
 import persistence.services.UserPersistenceService;
 import play.libs.F.Function;
@@ -16,6 +17,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 
 import controllers.security.AuthenticationController;
+import play.mvc.Security;
 
 public class DigitalOceanCommunicationModule extends Controller implements ProviderCommunicationModule {
 
@@ -91,6 +93,39 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	@Override
 	public Promise<Result> listInstances() {
 		WSRequestHolder request = createRequest(Urls.DIGITAL_OCEAN_URL.toString());
+		return request.get().map(function);
+	}
+
+	/**
+	 * List all regions for Digital Ocean VMs
+	 * Documentation:
+	 * https://developers.digitalocean.com/documentation/v2/#list-all-regions
+	 */
+	@Security.Authenticated(Secured.class)
+	public Promise<Result> listRegions(){
+		WSRequestHolder request = createRequest(Urls.DIGITAL_OCEAN_REGIONS.toString());
+		return request.get().map(function);
+	}
+
+	/**
+	 * List all images for Digital Ocean VMs
+	 * Documentation:
+	 * https://developers.digitalocean.com/documentation/v2/#list-all-distribution-images
+	 */
+	@Security.Authenticated(Secured.class)
+	public Promise<Result> listImages(){
+		WSRequestHolder request = createRequest(Urls.DIGITAL_OCEAN_IMAGES.toString());
+		return request.get().map(function);
+	}
+
+	/**
+	 * List all sizes for Digital Ocean VMs
+	 * Documentation:
+	 * https://developers.digitalocean.com/documentation/v2/#list-all-sizes
+	 */
+	@Security.Authenticated(Secured.class)
+	public Promise<Result> listSizes(){
+		WSRequestHolder request = createRequest(Urls.DIGITAL_OCEAN_SIZES.toString());
 		return request.get().map(function);
 	}
 

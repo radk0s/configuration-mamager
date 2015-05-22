@@ -1,13 +1,17 @@
 package persistence.model;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Table;
+import javax.persistence.OneToMany;
 
 import utils.Hasher;
 
+import com.google.common.collect.Lists;
+
 @Entity
-@Table(name = "USERS")
 public class User extends AbstractEntity {
 
 	private static final long serialVersionUID = 1L;
@@ -19,7 +23,7 @@ public class User extends AbstractEntity {
 	private int passwordMd5;
 
 	@Column(name = "PROVIDER")
-	private String provider;
+	private Provider provider;
 
 	@Column(name = "FIRST_NAME")
 	private String firstName;
@@ -31,10 +35,13 @@ public class User extends AbstractEntity {
 
 	private String awsSecretKey;
 
-    private String awsAccessKey;
+	private String awsAccessKey;
 
 	private String digitalOceanToken;
-	
+
+	@OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+	private List<Configuration> configurations = Lists.newArrayList();
+
 	public String getEmail() {
 		return email;
 	}
@@ -51,11 +58,11 @@ public class User extends AbstractEntity {
 		this.passwordMd5 = Hasher.calculateMd5(password);
 	}
 
-	public String getProvider() {
+	public Provider getProvider() {
 		return provider;
 	}
 
-	public void setProvider(String provider) {
+	public void setProvider(Provider provider) {
 		this.provider = provider;
 	}
 
@@ -94,14 +101,13 @@ public class User extends AbstractEntity {
 		this.awsAccessKey = awsToken;
 	}
 
+	public String getAwsSecretKey() {
+		return awsSecretKey;
+	}
 
-    public String getAwsSecretKey() {
-        return awsSecretKey;
-    }
-
-    public void setAwsSecretKey(String awsSecretToken) {
-        this.awsSecretKey = awsSecretToken;
-    }
+	public void setAwsSecretKey(String awsSecretToken) {
+		this.awsSecretKey = awsSecretToken;
+	}
 
 	public String getDigitalOceanToken() {
 		return digitalOceanToken;
@@ -109,5 +115,13 @@ public class User extends AbstractEntity {
 
 	public void setDigitalOceanToken(String digitalOceanToken) {
 		this.digitalOceanToken = digitalOceanToken;
+	}
+
+	public List<Configuration> getConfigurations() {
+		return configurations;
+	}
+
+	public void setConfigurations(List<Configuration> configurations) {
+		this.configurations = configurations;
 	}
 }
