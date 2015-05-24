@@ -1,7 +1,11 @@
 package controllers.communication;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import com.amazonaws.services.ec2.model.*;
+import com.amazonaws.util.json.JSONArray;
+import controllers.security.Secured;
 import persistence.model.User;
 import persistence.services.UserPersistenceService;
 import play.libs.F;
@@ -13,21 +17,13 @@ import play.mvc.Result;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.Reservation;
-import com.amazonaws.services.ec2.model.RunInstancesRequest;
-import com.amazonaws.services.ec2.model.RunInstancesResult;
-import com.amazonaws.services.ec2.model.StopInstancesRequest;
-import com.amazonaws.services.ec2.model.StopInstancesResult;
-import com.amazonaws.services.ec2.model.StartInstancesRequest;
-import com.amazonaws.services.ec2.model.StartInstancesResult;
-import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
-import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 
 import controllers.security.AuthenticationController;
+import play.mvc.Security;
 
 public class AwsCommunicationModule extends Controller implements ProviderCommunicationModule {
 	@Inject
@@ -133,6 +129,66 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 
 		JsonNode json = Json.toJson(createListInstancesResponseJson(amazonEC2Client.describeInstances().getReservations()));
 		return wrapResultAsPromise(ok(json));
+	}
+
+
+	@Security.Authenticated(Secured.class)
+	public Promise<Result> listAvailableImages() {
+		AmazonEC2Client amazonEC2Client = createEC2Client();
+		JsonNode json = createListImagesResponseJson(amazonEC2Client.describeImages().getImages());
+		return wrapResultAsPromise(ok(json));
+	}
+
+	@Security.Authenticated(Secured.class)
+	public Promise<Result> listInstanceTypes() {
+		JsonNode json = createListInstanceTypesResponseJson(InstanceType.values());
+		return wrapResultAsPromise(ok(json));
+	}
+
+	@Security.Authenticated(Secured.class)
+	public Promise<Result> listKeyNames() {
+		AmazonEC2Client amazonEC2Client = createEC2Client();
+		JsonNode json = createListKeyNamesResponseJson(amazonEC2Client.describeKeyPairs().getKeyPairs());
+		return wrapResultAsPromise(ok(json));
+	}
+
+	@Security.Authenticated(Secured.class)
+	public Promise<Result> listSecurityGroups() {
+		AmazonEC2Client amazonEC2Client = createEC2Client();
+		JsonNode json = createListSecurityGroupsResponseJson(amazonEC2Client.describeSecurityGroups().getSecurityGroups());
+		return wrapResultAsPromise(ok(json));
+	}
+
+	private JsonNode createListInstanceTypesResponseJson(InstanceType[] values) {
+		List<String> types = new ArrayList<String>();
+		for(InstanceType type : values) {
+			types.add(type.toString());
+		}
+		return Json.toJson(types);
+	}
+
+	private JsonNode createListSecurityGroupsResponseJson(List<SecurityGroup> securityGroups) {
+		List<String> groupNames = new ArrayList<String>();
+		for(SecurityGroup securityGroup : securityGroups){
+			groupNames.add(securityGroup.getGroupName());
+		}
+		return Json.toJson(groupNames);
+	}
+
+	private JsonNode createListKeyNamesResponseJson(List<KeyPairInfo> keyPairs) {
+		List<String> keyNames = new ArrayList<String>();
+		for(KeyPairInfo keyPairInfo : keyPairs) {
+			keyNames.add(keyPairInfo.getKeyName());
+		}
+		return Json.toJson(keyNames);
+	}
+
+	private JsonNode createListImagesResponseJson(List<Image> images) {
+		List<String> imageIds = new ArrayList<String>();
+		for(Image image : images) {
+			imageIds.add(image.getImageId());
+		}
+		return Json.toJson(imageIds);
 	}
 
 	private ObjectNode createListInstancesResponseJson(List<Reservation> reservations) {

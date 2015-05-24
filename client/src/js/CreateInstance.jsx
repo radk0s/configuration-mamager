@@ -15,7 +15,11 @@ module.exports =  React.createClass({
       allDORegions: [],
       allDOSizes: [],
       DOImages: [],
-      DOSizes: []
+      DOSizes: [],
+      AWSImages: [],
+      AWSInstanceTypes: [],
+      AWSKeys: [],
+      AWSSecurityGroups: []
     }
   },
   handleSelectChange() {
@@ -47,6 +51,42 @@ module.exports =  React.createClass({
         self.setState({
           allDOSizes: res.body.sizes
         });
+      });
+    request.get('/imageids/aws')
+      .set('authToken', auth.getToken())
+      .end((err, res) => {
+        self.setState({
+          AWSImages: res.body
+        });
+        console.log("AWS ids:");
+        console.log(res.body);
+      });
+    request.get('/instancetypes/aws')
+      .set('authToken', auth.getToken())
+      .end((err, res) => {
+        self.setState({
+          AWSInstanceTypes: res.body
+        });
+        console.log("AWS instance types:");
+        console.log(res.body);
+      });
+    request.get('/keynames/aws')
+      .set('authToken', auth.getToken())
+      .end((err, res) => {
+        self.setState({
+          AWSKeys: res.body
+        });
+        console.log("AWS key names:");
+        console.log(res.body);
+      });
+    request.get('/securitygroups/aws')
+      .set('authToken', auth.getToken())
+      .end((err, res) => {
+        self.setState({
+          AWSSecurityGroups: res.body
+        });
+        console.log("AWS security groups:");
+        console.log(res.body);
       });
   },
   componentDidUpdate() {
@@ -172,11 +212,31 @@ module.exports =  React.createClass({
     let createForm;
 
       if (this.state.provider == 'AWS') {
+        var imageIds = this.state.AWSImages.map(function(item, index) {
+          return <option value={item} key={index}>{item}</option>;
+        });
+        var instanceTypes = this.state.AWSInstanceTypes.map(function(item, index) {
+          return <option value={item} key={index}>{item}</option>;
+        });
+        var keyNames = this.state.AWSKeys.map(function(item, index) {
+          return <option value={item} key={index}>{item}</option>;
+        });
+        var securityGroups = this.state.AWSSecurityGroups.map(function(item, index) {
+          return <option value={item} key={index}>{item}</option>;
+        });
         createForm = <form style={{width: '60%', 'margin-left': 10, 'margin-right': 'auto'}} onSubmit={this.handleAWSSubmit}>
-          <Input type='text' value={this.state.imageId} onChange={() => { this.setState({imageId: this.refs.imageId.getValue()})}} label='imageId' ref={'imageId'}/>
-          <Input type='text' value={this.state.instanceType} onChange={() => this.setState({instanceType: this.refs.instanceType.getValue()})} label='instanceType' ref={'instanceType'}/>
-          <Input type='text' value={this.state.keyName} onChange={() => this.setState({keyName: this.refs.keyName.getValue()})} label='keyName' ref={'keyName'}/>
-          <Input type='text' value={this.state.securityGroup} onChange={() => this.setState({securityGroup: this.refs.securityGroup.getValue()})} label='securityGroup' ref={'securityGroup'}/>
+          <Input type='select' value={this.state.imageId} onChange={() => { this.setState({imageId: this.refs.imageId.getValue()})}} label='imageId' ref={'imageId'}>
+            {imageIds}
+          </Input>
+          <Input type='select' value={this.state.instanceType} onChange={() => this.setState({instanceType: this.refs.instanceType.getValue()})} label='instanceType' ref={'instanceType'}>
+            {instanceTypes}
+          </Input>
+          <Input type='select' value={this.state.keyName} onChange={() => this.setState({keyName: this.refs.keyName.getValue()})} label='keyName' ref={'keyName'}>
+            {keyNames}
+          </Input>
+          <Input type='select' value={this.state.securityGroup} onChange={() => this.setState({securityGroup: this.refs.securityGroup.getValue()})} label='securityGroup' ref={'securityGroup'}>
+            {securityGroups}
+          </Input>
           <Input type='select' value={this.state.saveConfig} onChange={() => { this.setState({saveConfig: this.refs.saveConfig.getValue()})}} label='Save Configuration?' ref={'saveConfig'}>
             <option value="no" key="1">No</option>
             <option value="yes" key="2">Yes</option>
