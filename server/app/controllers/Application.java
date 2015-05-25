@@ -47,7 +47,7 @@ public class Application extends Controller {
 	@Authenticated(Secured.class)
 	public Result startTerminal() {
 		try {
-			Process myProcess = Runtime.getRuntime().exec("node /home/radchamot/Desktop/wetty/app.js -p 3000");
+			Process myProcess = Runtime.getRuntime().exec("node /home/radchamot/Desktop/wetty/app.js -p 3000 --sshhost 188.226.219.10 --sshuser root --sshauth password");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
