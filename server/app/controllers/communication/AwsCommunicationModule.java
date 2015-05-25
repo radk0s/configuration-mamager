@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.amazonaws.services.ec2.model.*;
-import com.amazonaws.util.json.JSONArray;
 import controllers.security.Secured;
 import persistence.model.User;
 import persistence.services.UserPersistenceService;
@@ -134,8 +133,7 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 
 	@Security.Authenticated(Secured.class)
 	public Promise<Result> listAvailableImages() {
-		AmazonEC2Client amazonEC2Client = createEC2Client();
-		JsonNode json = createListImagesResponseJson(amazonEC2Client.describeImages().getImages());
+		JsonNode json = createListImagesResponseJson();
 		return wrapResultAsPromise(ok(json));
 	}
 
@@ -183,12 +181,28 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 		return Json.toJson(keyNames);
 	}
 
-	private JsonNode createListImagesResponseJson(List<Image> images) {
-		List<String> imageIds = new ArrayList<String>();
-		for(Image image : images) {
-			imageIds.add(image.getImageId());
-		}
-		return Json.toJson(imageIds);
+	private JsonNode createListImagesResponseJson() {
+
+		List<AwsImage> awsImages = new ArrayList<AwsImage>();
+		awsImages.add(new AwsImage("Amazon Linux AMI 2015.03 (HVM) x64","ami-e7527ed7"));
+		awsImages.add(new AwsImage("Red Hat Enterprise Linux 7.1 (HVM) x64","ami-4dbf9e7d"));
+		awsImages.add(new AwsImage("SUSE Linux Enterprise Server 12 (HVM) x64","ami-d7450be7"));
+		awsImages.add(new AwsImage("Ubuntu Server 14.04 LTS (HVM) x64","ami-5189a661"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2012 R2 Base x64","ami-8fd3f9bf"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2012 R2 with SQL Server Express x64","ami-95d3f9a5"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2012 R2 with SQL Server Web x64","ami-53d3f963"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2012 R2 with SQL Server Standard x64","ami-b1d3f981"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2012 Base x64","ami-63d3f953"));
+		awsImages.add(new AwsImage("Ubuntu Server 14.04 LTS (PV) x64","ami-6989a659"));
+		awsImages.add(new AwsImage("SUSE Linux Enterprise Server 11 SP3 (PV) x64","ami-5df2ab6d"));
+		awsImages.add(new AwsImage("Amazon Linux AMI 2015.03 (PV) x64","ami-ff527ecf"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2003 R2 Base x32","ami-a3c9e393"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2003 R2 Base x64","ami-51c9e361"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2008 Base x32","ami-11cee421"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2008 Base x64","ami-43c2e873"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2008 R2 with SQL Server Express and IIS x64","ami-0dcee43d"));
+		awsImages.add(new AwsImage("Microsoft Windows Server 2008 R2 Base x64","ami-9dc9e3ad"));
+		return Json.toJson(awsImages);
 	}
 
 	private ObjectNode createListInstancesResponseJson(List<Reservation> reservations) {

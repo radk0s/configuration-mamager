@@ -24,6 +24,8 @@ create table user (
   aws_secret_key            varchar(255),
   aws_access_key            varchar(255),
   digital_ocean_token       varchar(255),
+  aws_private_key           longtext,
+  aws_keypair_name          varchar(255),
   constraint ck_user_PROVIDER check (PROVIDER in (0,1)),
   constraint pk_user primary key (id))
 ;

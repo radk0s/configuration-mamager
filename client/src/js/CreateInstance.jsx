@@ -213,7 +213,7 @@ module.exports =  React.createClass({
 
       if (this.state.provider == 'AWS') {
         var imageIds = this.state.AWSImages.map(function(item, index) {
-          return <option value={item} key={index}>{item}</option>;
+          return <option value={item.id} key={index}>{item.name}</option>;
         });
         var instanceTypes = this.state.AWSInstanceTypes.map(function(item, index) {
           return <option value={item} key={index}>{item}</option>;
