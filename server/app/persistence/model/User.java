@@ -2,10 +2,7 @@ package persistence.model;
 
 import java.util.List;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 
 import utils.Hasher;
 
@@ -38,6 +35,11 @@ public class User extends AbstractEntity {
 	private String awsAccessKey;
 
 	private String digitalOceanToken;
+
+	@Lob
+	private String awsPrivateKey;
+
+	private String awsKeypairName;
 
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
 	private List<Configuration> configurations = Lists.newArrayList();
@@ -124,4 +126,18 @@ public class User extends AbstractEntity {
 	public void setConfigurations(List<Configuration> configurations) {
 		this.configurations = configurations;
 	}
+
+	public void setAwsPrivateKey(String privateKey) { this.awsPrivateKey = privateKey; }
+
+	public String getAwsPrivateKey() {return awsPrivateKey; }
+
+	public String getAwsKeypairName() {
+		return awsKeypairName;
+	}
+
+	public void setAwsKeypairName(String awsKeypairName) {
+		this.awsKeypairName = awsKeypairName;
+	}
+
+
 }

@@ -54,15 +54,15 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 
         String imageId = json.get("imageId").asText();
         String instanceType = json.get("instanceType").asText();
-        String keyName = json.get("keyName").asText();
+        String keyName = getUserFromRequest().getAwsKeypairName();
         String securityGroup = json.get("securityGroup").asText();
 
         runInstancesRequest.withImageId(imageId)
-                .withInstanceType(instanceType)
+				.withInstanceType(instanceType)
                 .withMinCount(1)
                 .withMaxCount(1)
                 .withKeyName(keyName)
-                .withSecurityGroups("default");
+				.withSecurityGroups("default");
 
         RunInstancesResult runInstancesResult = amazonEC2Client.runInstances(runInstancesRequest);
         JsonNode responseJson = Json.toJson(runInstancesResult.getReservation());
