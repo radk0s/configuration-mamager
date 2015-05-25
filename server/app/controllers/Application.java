@@ -1,7 +1,14 @@
 package controllers;
 
+import com.amazonaws.services.ec2.AmazonEC2Client;
+import com.amazonaws.services.ec2.model.StopInstancesRequest;
+import com.amazonaws.services.ec2.model.StopInstancesResult;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Lists;
 import persistence.model.User;
 import persistence.services.UserPersistenceService;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security.Authenticated;
@@ -15,6 +22,7 @@ import java.io.IOException;
 
 public class Application extends Controller {
 
+	private static int port = 3000;
 	@Inject
 	private UserPersistenceService userService;
 
@@ -46,13 +54,28 @@ public class Application extends Controller {
 
 	@Authenticated(Secured.class)
 	public Result startTerminal() {
+		JsonNode json = request().body().asJson();
+		System.out.println(json);
+
+		String username = json.get("username").asText();
+		String hostname = json.get("host").asText();
+		Integer port = Application.port++;
+
 		try {
-			Process myProcess = Runtime.getRuntime().exec("node /home/radchamot/Desktop/wetty/app.js -p 3000 --sshhost 188.226.219.10 --sshuser root --sshauth password");
-		} catch (IOException e) {
+			String cmd = "node /home/radchamot/Desktop/wetty/app.js -p "+ port +" --sshhost "+ hostname +" --sshuser "+ username +" --sshauth password";
+			System.out.println(cmd);
+			Runtime.getRuntime().exec(cmd);
+			Thread.sleep(500);
+		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
+			return internalServerError("Unable to create ssh agent.");
 		}
 
-		return ok();
+		ObjectNode responseJson = Json.newObject();
+		responseJson.put("port", port);
+		responseJson.put("username", username);
+		responseJson.put("host", hostname);
+		return ok(responseJson);
 
 	}
 
