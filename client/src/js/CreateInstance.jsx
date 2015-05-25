@@ -12,6 +12,8 @@ module.exports =  React.createClass({
       provider: 'DIGITAL_OCEAN',
       saveConf: false,
       DORegions: [],
+      allDORegions: [],
+      allDOSizes: [],
       DOImages: [],
       DOSizes: []
     }
@@ -25,13 +27,6 @@ module.exports =  React.createClass({
   },
   componentDidMount() {
     let self = this;
-    request.get('/regions/do')
-      .set('authToken', auth.getToken())
-      .end((err, res) => {
-        self.setState({
-          DORegions: res.body.regions
-        });
-      });
     request.get('/images/do')
       .set('authToken', auth.getToken())
       .end((err, res) => {
@@ -39,16 +34,54 @@ module.exports =  React.createClass({
           DOImages: res.body.images
         });
       });
+    request.get('/regions/do')
+      .set('authToken', auth.getToken())
+      .end((err, res) => {
+        self.setState({
+          allDORegions: res.body.regions
+        });
+      });
     request.get('/sizes/do')
       .set('authToken', auth.getToken())
       .end((err, res) => {
         self.setState({
-          DOSizes: res.body.sizes
+          allDOSizes: res.body.sizes
         });
       });
   },
   componentDidUpdate() {
     this.render();
+  },
+  handleDOImageSelect() {
+    let selectedImage = this.refs.image.getValue();
+    var self = this;
+    this.setState({
+      image: selectedImage
+    });
+    this.state.DOImages.map(function(item) {
+      console.log(item.slug + " --- " + selectedImage);
+      if(item.slug === selectedImage) {
+        self.setState({
+          DORegions: item.regions
+        });
+        console.log(self.state.DORegions);
+      }
+    });
+  },
+  handleDORegionSelect() {
+    let selectedRegion = this.refs.region.getValue();
+    var self = this;
+    this.setState({
+      region: selectedRegion
+    });
+    this.state.allDORegions.map(function(item) {
+      if(item.slug === selectedRegion) {
+        self.setState({
+          DOSizes: item.sizes
+        });
+        console.log(self.state.DOSizes);
+      }
+    });
   },
   handleSelectConfChange() {
 
@@ -151,22 +184,32 @@ module.exports =  React.createClass({
           <Input type='submit' value='Create AWS Instance'/>
         </form>;
       } else {
-        var regions = this.state.DORegions.map(function(item, index) {
-          return <option value={item.slug} key={index}>{item.name}</option>;
-        });
+        var self = this;
         var images = this.state.DOImages.map(function(item, index) {
           return <option value={item.slug} key={index}>{item.slug}</option>;
         });
-        var sizes = this.state.DOSizes.map(function(item, index) {
-          return <option value={item.slug} key={index}>{item.slug}</option>;
+        var regions = this.state.allDORegions.map(function(item, index) {
+          return self.state.DORegions.map(function(availableitem) {
+            console.log("** " + availableitem + " ~~ " + item.slug);
+            if(availableitem === item.slug) {
+              return <option value={item.slug} key={index}>{item.name}</option>;
+            }
+          });
+        });
+        var sizes = this.state.allDOSizes.map(function(item, index) {
+          return self.state.DOSizes.map(function(availableitem) {
+            if(availableitem === item.slug) {
+              return <option value={item.slug} key={index}>{item.slug}</option>;
+            }
+          });
         });
         createForm = <form style={{width: '60%', 'margin-left': 10, 'margin-right': 'auto'}} onSubmit={this.handleDOSubmit}>
           <Input type='text' value={this.state.name} onChange={() => { this.setState({name: this.refs.name.getValue()})}} label='name' ref={'name'}/>
-          <Input type='select' value={this.state.region} onChange={() => { this.setState({region: this.refs.region.getValue()})}} label='region' ref={'region'}>
-            {regions}
-          </Input>
-          <Input type='select' value={this.state.image} onChange={() => { this.setState({image: this.refs.image.getValue()})}} label='image' ref={'image'}>
+          <Input type='select' value={this.state.image} onChange={this.handleDOImageSelect} label='image' ref={'image'}>
             {images}
+          </Input>
+          <Input type='select' value={this.state.region} onChange={this.handleDORegionSelect} label='region' ref={'region'}>
+            {regions}
           </Input>
           <Input type='select' value={this.state.size} onChange={() => { this.setState({size: this.refs.size.getValue()})}} label='size' ref={'size'}>
             {sizes}
