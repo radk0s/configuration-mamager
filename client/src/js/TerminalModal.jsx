@@ -29,9 +29,9 @@ module.exports = React.createClass({
   render() {
     let iframe;
     if (this.state.terminalConf.port) {
-      let endpoint = `http://${window.location.hostname}:${this.state.terminalConf.port}/`;
+      let endpoint = `https://${window.location.hostname}:${this.state.terminalConf.port}/`;
       console.log(endpoint);
-      iframe = <iframe src={`http://localhost:${this.state.terminalConf.port}/`} width='100%' height='100%'></iframe>
+      iframe = <iframe src={endpoint} width='100%' height='100%'></iframe>
     }
     return (
       <Modal {...this.props} title='Modal heading' dialogClassName='modal-body' animation={false}>
