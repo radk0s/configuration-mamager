@@ -47,9 +47,13 @@ public class Application extends Controller {
 		final String userAWSAccessKey = user != null ? user.getAwsAccessKey() : "";
         final String userAWSSecretKey = user != null ? user.getAwsSecretKey() : "";
 
-
-        return ok("{\"userToken\":\"" + userToken + "\",\"userEmail\":\"" + userEmail + "\",\"userDOToken\":\""
-				+ userDOToken + "\",\"userAWSAccessKey\":\"" + userAWSAccessKey+ "\",\"userAWSSecretKey\":\"" + userAWSSecretKey + "\"}");
+        ObjectNode responseJson = Json.newObject();
+        responseJson.put("userToken", userToken);
+        responseJson.put("userEmail", userEmail);
+        responseJson.put("userDOToken", userDOToken);
+        responseJson.put("userAWSAccessKey", userAWSAccessKey);
+        responseJson.put("userAWSSecretKey", userAWSSecretKey);
+        return ok(responseJson);
 	}
 
 	@Authenticated(Secured.class)

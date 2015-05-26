@@ -105,23 +105,22 @@ class Signup extends React.Component {
   }
 
   render () {
+    let component = this;
+    let inputs = [
+      <Input type='text' label='Email' labelClassName='col-xs-offset-3 col-xs-1' value={component.state.email} wrapperClassName='col-xs-2' ref={'email'} onChange={component.handleChange} bsStyle={component.validateEmail()}/>,
+      <Input type='password' label='Password' labelClassName='col-xs-offset-3 col-xs-1' value={component.state.pass} wrapperClassName='col-xs-2' ref={'pass'} onChange={component.handleChange} bsStyle={component.validatePassword()}/>,
+      <Input type='text' label='DOToken' labelClassName='col-xs-offset-3 col-xs-1' valie={component.state.DOToken} wrapperClassName='col-xs-2' ref={'DOToken'} onChange={component.handleChange} bsStyle={component.validateToken("DOToken")}/>,
+      <Input type='text' label='AWSAccessKey' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSAccessKey'} onChange={component.handleChange} bsStyle={component.validateToken("AWSAccessKey")}/>,
+      <Input type='text' label='AWSSecretKey' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSSecretKey'} onChange={component.handleChange} bsStyle={component.validateToken("AWSSecretKey")}/>
+    ];
+
+    let rows = inputs.map((item) => {
+      return <Row>{item}</Row>;
+    });
+
     return (
     <form onSubmit={this.handleSubmit}>
-      <Row>
-        <Input type='text' label='Email' labelClassName='col-xs-offset-3 col-xs-1' value={this.state.email} wrapperClassName='col-xs-2' ref={'email'} onChange={this.handleChange} bsStyle={this.validateEmail()}/>
-      </Row>
-      <Row>
-        <Input type='password' label='Password' labelClassName='col-xs-offset-3 col-xs-1' value={this.state.pass} wrapperClassName='col-xs-2' ref={'pass'} onChange={this.handleChange} bsStyle={this.validatePassword()}/>
-      </Row>
-      <Row>
-        <Input type='text' label='DOToken' labelClassName='col-xs-offset-3 col-xs-1' valie={this.state.DOToken} wrapperClassName='col-xs-2' ref={'DOToken'} onChange={this.handleChange} bsStyle={this.validateToken("DOToken")}/>
-      </Row>
-      <Row>
-        <Input type='text' label='AWSAccessKey' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSAccessKey'} onChange={this.handleChange} bsStyle={this.validateToken("AWSAccessKey")}/>
-      </Row>
-      <Row>
-        <Input type='text' label='AWSSecretKey' labelClassName='col-xs-offset-3 col-xs-1' wrapperClassName='col-xs-2' ref={'AWSSecretKey'} onChange={this.handleChange} bsStyle={this.validateToken("AWSSecretKey")}/>
-      </Row>
+      {rows}
       <Row/>
       <Row>
         <Input wrapperClassName='col-xs-offset-4 col-xs-1' type='submit' value='Register'

@@ -27,21 +27,19 @@ let Dashboard = React.createClass({
     },
     render() {
       var token = auth.getToken();
-      console.log(this);
+      let component = this;
+      let inputs = [
+          <Col xs={6} xsOffset={2}><p>User Email: {component.state.userEmail}</p></Col>,
+          <Col xs={8} xsOffset={2}><p>DO Token: {component.state.userDOToken}</p></Col>,
+          <Col xs={6} xsOffset={2}><p>AWS Access Key: {component.state.userAWSAccessKey}</p></Col>,
+          <Col xs={6} xsOffset={2}><p>AWS Secret Key: {component.state.userAWSSecretKey}</p></Col>
+      ];
+      let rows = inputs.map((item) => {
+        return <Row className='show-grid'>{item}</Row>;
+      });
       return (
       <Grid>
-        <Row className='show-grid'>
-          <Col xs={6} xsOffset={2}><p>User Email: {this.state.userEmail}</p></Col>
-        </Row>
-        <Row className='show-grid'>
-          <Col xs={8} xsOffset={2}><p>DO Token: {this.state.userDOToken}</p></Col>
-        </Row>
-        <Row className='show-grid'>
-          <Col xs={6} xsOffset={2}><p>AWS Access Key: {this.state.userAWSAccessKey}</p></Col>
-        </Row>
-        <Row className='show-grid'>
-          <Col xs={6} xsOffset={2}><p>AWS Secret Key: {this.state.userAWSSecretKey}</p></Col>
-        </Row>
+        {rows}
       </Grid>
       );
     }
