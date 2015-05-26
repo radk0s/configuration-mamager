@@ -62,7 +62,7 @@ public class Application extends Controller {
 		Integer port = Application.port++;
 
 		try {
-			String cmd = "node /root/wetty/app.js --sslkey /root/wetty/key.pem --sslcert /root/wetty/cert.pem -p "+ port +" --sshhost "+ hostname +" --sshuser "+ username +" --sshauth password";
+			String cmd = "node /var/lib/jenkins/wetty/app.js --sslkey /var/lib/jenkins/wetty/key.pem --sslcert /var/lib/jenkins/wetty/cert.pem -p "+ port +" --sshhost "+ hostname +" --sshuser "+ username +" --sshauth password";
 			System.out.println(cmd);
 			Runtime.getRuntime().exec(cmd);
 			Thread.sleep(500);
