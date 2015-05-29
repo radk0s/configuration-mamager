@@ -99,6 +99,11 @@ module.exports =  React.createClass({
     this.render();
   },
   handleDOImageSelect() {
+
+    this.setState({
+      isDOSelectedFromConfiguration: false
+    });
+
     let selectedImage = this.refs.image.getValue();
     var self = this;
     this.setState({
@@ -113,6 +118,11 @@ module.exports =  React.createClass({
     });
   },
   handleDORegionSelect() {
+
+    this.setState({
+      isDOSelectedFromConfiguration: false
+    });
+
     let selectedRegion = this.refs.region.getValue();
     var self = this;
     this.setState({
@@ -125,6 +135,16 @@ module.exports =  React.createClass({
         });
       }
     });
+  },
+  handleDOSizeSelect(){
+
+    let selectedSize = this.refs.size.getValue();
+
+    this.setState({
+      isDOSelectedFromConfiguration: false,
+      size: selectedSize
+    });
+
   },
   handleSelectConfChange() {
 
@@ -282,7 +302,7 @@ module.exports =  React.createClass({
           <Input type='select' value={this.state.region} onChange={this.handleDORegionSelect} label='region' ref={'region'}>
             {regions}
           </Input>
-          <Input type='select' value={this.state.size} onChange={() => { this.setState({size: this.refs.size.getValue()})}} label='size' ref={'size'}>
+          <Input type='select' value={this.state.size} onChange={this.handleDOSizeSelect} label='size' ref={'size'}>
             {sizes}
           </Input>
           <Input type='select' value={this.state.saveConfig} onChange={() => { this.setState({saveConfig: this.refs.saveConfig.getValue()})}} label='Save Configuration?' ref={'saveConfig'}>
