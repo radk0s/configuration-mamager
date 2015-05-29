@@ -32,6 +32,10 @@ PUT           /instances/aws             @controllers.communication.AwsCommunica
 DELETE        /instances/aws             @controllers.communication.AwsCommunicationModule.deleteInstance()
 POST          /instances/aws/run         @controllers.communication.AwsCommunicationModule.runInstance()
 POST          /instances/aws/stop        @controllers.communication.AwsCommunicationModule.stopInstance()
+GET           /imageids/aws              @controllers.communication.AwsCommunicationModule.listAvailableImages()
+GET           /instancetypes/aws         @controllers.communication.AwsCommunicationModule.listInstanceTypes()
+GET           /keynames/aws              @controllers.communication.AwsCommunicationModule.listKeyNames()
+GET           /securitygroups/aws        @controllers.communication.AwsCommunicationModule.listSecurityGroups()
 
 GET           /configuration             @controllers.configuration.ConfigurationController.getConfigurations()
 POST          /configuration             @controllers.configuration.ConfigurationController.createConfiguration()

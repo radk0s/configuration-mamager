@@ -23,7 +23,7 @@ public enum Urls {
 	},
 	AWS_URL{
 		public String toString(){
-			return "ec2.eu-central-1.amazonaws.com";
+			return "ec2.us-west-2.amazonaws.com";
 		}
 	},
 	AWS_HOST{
