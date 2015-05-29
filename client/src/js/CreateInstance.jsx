@@ -19,8 +19,14 @@ module.exports =  React.createClass({
       AWSImages: [],
       AWSInstanceTypes: [],
       AWSKeys: [],
-      AWSSecurityGroups: []
+      AWSSecurityGroups: [],
+      isDOSelectedFromConfiguration: false
     }
+  },
+
+  isConfigurationConnectedWithChosenProvider(name) {
+    let provider = this.state.provider;
+    return (name.includes('AWS') && provider === 'AWS') || (name.includes('DO') && provider === 'DIGITAL_OCEAN');
   },
   handleSelectChange() {
     this.setState({
@@ -99,12 +105,10 @@ module.exports =  React.createClass({
       image: selectedImage
     });
     this.state.DOImages.map(function(item) {
-      console.log(item.slug + " --- " + selectedImage);
       if(item.slug === selectedImage) {
         self.setState({
           DORegions: item.regions
         });
-        console.log(self.state.DORegions);
       }
     });
   },
@@ -119,18 +123,20 @@ module.exports =  React.createClass({
         self.setState({
           DOSizes: item.sizes
         });
-        console.log(self.state.DOSizes);
       }
     });
   },
   handleSelectConfChange() {
+
+    this.setState({
+      isDOSelectedFromConfiguration: true
+    });
 
     let confId = parseInt(this.refs.configurations.getValue());
     console.log(confId);
     console.log(this.props.confs);
 
     let data = _.head(_.where(this.props.confs, {id: confId})).data;
-    if(this.state.provider === "AWS") {}
     let conf = JSON.parse(data);
     conf.provider = this.state.provider;
     this.setState(conf);
@@ -249,14 +255,19 @@ module.exports =  React.createClass({
           return <option value={item.slug} key={index}>{item.slug}</option>;
         });
         var regions = this.state.allDORegions.map(function(item, index) {
+          if (self.state.isDOSelectedFromConfiguration){
+            return <option value={item.slug} key={index}>{item.name}</option>;
+          }
           return self.state.DORegions.map(function(availableitem) {
-            console.log("** " + availableitem + " ~~ " + item.slug);
             if(availableitem === item.slug) {
               return <option value={item.slug} key={index}>{item.name}</option>;
             }
           });
         });
         var sizes = this.state.allDOSizes.map(function(item, index) {
+          if (self.state.isDOSelectedFromConfiguration){
+            return <option value={item.slug} key={index}>{item.slug}</option>;
+          }
           return self.state.DOSizes.map(function(availableitem) {
             if(availableitem === item.slug) {
               return <option value={item.slug} key={index}>{item.slug}</option>;
@@ -281,23 +292,27 @@ module.exports =  React.createClass({
           <Input type='submit' value='Create DO Instance'/>
         </form>
       }
+    var self = this;
     let options = this.props.confs.map((item, index) => {
-      return  <option value={item.id} key={index}>{item.name}</option>
+      if(self.isConfigurationConnectedWithChosenProvider(item.name)) {
+        return <option value={item.id} key={index}>{item.name}</option>
+      }
     });
 
     return (
       <Modal {...this.props} bsStyle="primary" title={ this.props.title }>
         <div style={{width: '140px', 'margin-left': 10}}>
-          <h4>Select recent configuration:</h4>
-
-          <Input type='select' ref='configurations' onChange={this.handleSelectConfChange}>
-            {options}
-          </Input>
 
           <h4>Select Provider:</h4>
           <Input type='select' ref='input' value={this.state.provider} onChange={this.handleSelectChange}>
             <option value={'DIGITAL_OCEAN'} key={0}>DO</option>
             <option value={'AWS'} key={1}>AWS</option>
+          </Input>
+
+          <h4>Select recent configuration:</h4>
+
+          <Input type='select' ref='configurations' onChange={this.handleSelectConfChange}>
+            {options}
           </Input>
         </div>
         {createForm}
