@@ -1,9 +1,5 @@
 package controllers.configuration;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.google.inject.Inject;
-import controllers.security.AuthenticationController;
-import controllers.security.Secured;
 import persistence.model.User;
 import persistence.services.ConfigurationPersistenceService;
 import persistence.services.UserPersistenceService;
@@ -14,98 +10,101 @@ import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.Security.Authenticated;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.google.inject.Inject;
+
+import controllers.security.AuthenticationController;
+import controllers.security.Secured;
+
 public class ConfigurationController extends Controller {
 
-    @Inject
-    UserPersistenceService userService;
+	@Inject
+	UserPersistenceService userService;
 
-    @Inject
-    ConfigurationPersistenceService configurationService;
+	@Inject
+	ConfigurationPersistenceService configurationService;
 
-    @Authenticated(Secured.class)
-    public Result createConfiguration() {
+	@Authenticated(Secured.class)
+	public Result createConfiguration() {
 
-        final Form<Configuration> configurationForm = Form.form(Configuration.class).bindFromRequest();
+		final Form<Configuration> configurationForm = Form.form(Configuration.class).bindFromRequest();
+		if (configurationForm.hasErrors()) {
+			return badRequest(configurationForm.errorsAsJson());
+		}
 
-        if(configurationForm.hasErrors()) {
-            return badRequest(configurationForm.errorsAsJson());
-        }
+		final Configuration configuration = configurationForm.get();
+		if (configurationService.findConfigurationByName(configuration.name) != null) {
+			return badRequest("Configuration " + configuration.name + " already exists!");
+		}
 
-        final Configuration configuration = configurationForm.get();
+		persistence.model.Configuration config = ConfigurationTranslator.convert(configuration);
+		final User user = getUserFromRequest();
+		config.setUser(user);
+		configurationService.save(config);
 
-        if( configurationService.findConfigurationByName(configuration.name) != null ) {
-            return badRequest("Configuration " + configuration.name + " already exists!");
-        }
+		return ok(String.valueOf(config.getId()));
+	}
 
-        persistence.model.Configuration config = ConfigurationTranslator.convert(configuration);
-        final User user = getUserFromRequest();
-        config.setUser(user);
+	@Authenticated(Secured.class)
+	public Result getConfigurations() {
+		final User user = getUserFromRequest();
+		return ok(Json.toJson(configurationService.getConfigurationsByUser(user)));
+	}
 
-        configurationService.save(config);
+	@Authenticated(Secured.class)
+	public Result deleteConfiguration() {
+		final JsonNode json = request().body().asJson();
+		final String configurationName = json.get("name").asText();
 
-        return ok(String.valueOf(config.getId()));
-    }
+		if (configurationName == null || configurationName == "") {
+			return badRequest("Invalid or empty configuration name to delete");
+		}
 
-    @Authenticated(Secured.class)
-    public Result getConfigurations() {
-        final User user = getUserFromRequest();
-        return ok(Json.toJson(configurationService.getConfigurationsByUser(user)));
-    }
+		configurationService.deleteByName(configurationName);
 
-    @Authenticated(Secured.class)
-    public Result deleteConfiguration() {
-        final JsonNode json = request().body().asJson();
-        final String configurationName = json.get("name").asText();
+		return ok();
+	}
 
-        if(configurationName == null || configurationName == "") {
-            return badRequest("Invalid or empty configuration name to delete");
-        }
+	private User getUserFromRequest() {
+		String authToken = request().getHeader(AuthenticationController.AUTH_TOKEN);
+		User user = userService.findByAuthToken(authToken);
+		return user;
+	}
 
-        configurationService.deleteByName(configurationName);
+	public static class Configuration {
+		@Constraints.Required
+		public String name;
 
-        return ok();
-    }
+		@Constraints.Required
+		public String data;
 
-    private User getUserFromRequest() {
-        String authToken = request().getHeader(AuthenticationController.AUTH_TOKEN);
-        User user = userService.findByAuthToken(authToken);
-        return user;
-    }
+		@Constraints.Required
+		public String provider;
 
-    public static class Configuration {
-        @Constraints.Required
-        public String name;
+		/**
+		 * Validate the configuration.
+		 *
+		 * @return null if validation ok, string with details otherwise
+		 */
+		public String validate() {
+			if (isBlank(name)) {
+				return "Configuration name is required";
+			}
 
-        @Constraints.Required
-        public String data;
+			if (isBlank(data)) {
+				return "Configuration data is required";
+			}
 
-        @Constraints.Required
-        public String provider;
+			if (isBlank(provider)) {
+				return "Configuration provider is required";
+			}
 
-        /**
-         * Validate the configuration.
-         *
-         * @return null if validation ok, string with details otherwise
-         */
-        public String validate() {
-            if (isBlank(name)) {
-                return "Configuration name is required";
-            }
+			return null;
+		}
 
-            if (isBlank(data)) {
-                return "Configuration data is required";
-            }
+		private boolean isBlank(String input) {
+			return input == null || input.isEmpty() || input.trim().isEmpty();
+		}
 
-            if (isBlank(provider)) {
-                return "Configuration provider is required";
-            }
-
-            return null;
-        }
-
-        private boolean isBlank(String input) {
-            return input == null || input.isEmpty() || input.trim().isEmpty();
-        }
-
-    }
+	}
 }

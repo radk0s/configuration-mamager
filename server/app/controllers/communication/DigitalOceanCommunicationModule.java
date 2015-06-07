@@ -1,6 +1,5 @@
 package controllers.communication;
 
-import controllers.security.Secured;
 import persistence.model.User;
 import persistence.services.UserPersistenceService;
 import play.libs.F.Function;
@@ -11,13 +10,14 @@ import play.libs.ws.WSRequestHolder;
 import play.libs.ws.WSResponse;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.Security;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.inject.Inject;
 
 import controllers.security.AuthenticationController;
-import play.mvc.Security;
+import controllers.security.Secured;
 
 public class DigitalOceanCommunicationModule extends Controller implements ProviderCommunicationModule {
 
@@ -35,13 +35,10 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	}
 
 	/**
-	 * REQUEST BODY example: { "name": "example.com", "region": "nyc3", "size":
-	 * "512mb", "image": "ubuntu-14-04-x64", "ssh_keys": null, "backups": false,
-	 * "ipv6": * true, "user_data": null, "private_networking": null }
+	 * REQUEST BODY example: { "name": "example.com", "region": "nyc3", "size": "512mb", "image": "ubuntu-14-04-x64",
+	 * "ssh_keys": null, "backups": false, "ipv6": * true, "user_data": null, "private_networking": null }
 	 * 
-	 * Documentation:
-	 * https://developers.digitalocean.com/documentation/v2/#create
-	 * -a-new-droplet
+	 * Documentation: https://developers.digitalocean.com/documentation/v2/#create-a-new-droplet
 	 */
 	@Override
 	public Promise<Result> createInstance() {
@@ -52,8 +49,7 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	/**
 	 * REQUEST BODY example: { "instanceId": "id" }
 	 * 
-	 * Documentation:
-	 * https://developers.digitalocean.com/documentation/v2/#power-on-a-droplet
+	 * Documentation: https://developers.digitalocean.com/documentation/v2/#power-on-a-droplet
 	 */
 	@Override
 	public Promise<Result> runInstance() {
@@ -64,8 +60,7 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	/**
 	 * REQUEST BODY example: { "instanceId": "id" }
 	 * 
-	 * Documentation:
-	 * https://developers.digitalocean.com/documentation/v2/#shutdown-a-droplet
+	 * Documentation: https://developers.digitalocean.com/documentation/v2/#shutdown-a-droplet
 	 */
 	@Override
 	public Promise<Result> stopInstance() {
@@ -76,8 +71,7 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	/**
 	 * REQUEST BODY example: { "instanceId": "id" }
 	 * 
-	 * Documentation:
-	 * https://developers.digitalocean.com/documentation/v2/#delete-a-droplet
+	 * Documentation: https://developers.digitalocean.com/documentation/v2/#delete-a-droplet
 	 */
 	@Override
 	public Promise<Result> deleteInstance() {
@@ -87,8 +81,7 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	}
 
 	/**
-	 * Documentation:
-	 * https://developers.digitalocean.com/documentation/v2/#list-all-droplets
+	 * Documentation: https://developers.digitalocean.com/documentation/v2/#list-all-droplets
 	 */
 	@Override
 	public Promise<Result> listInstances() {
@@ -97,34 +90,31 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	}
 
 	/**
-	 * List all regions for Digital Ocean VMs
-	 * Documentation:
+	 * List all regions for Digital Ocean VMs Documentation:
 	 * https://developers.digitalocean.com/documentation/v2/#list-all-regions
 	 */
 	@Security.Authenticated(Secured.class)
-	public Promise<Result> listRegions(){
+	public Promise<Result> listRegions() {
 		WSRequestHolder request = createRequest(Urls.DIGITAL_OCEAN_REGIONS.toString());
 		return request.get().map(function);
 	}
 
 	/**
-	 * List all images for Digital Ocean VMs
-	 * Documentation:
+	 * List all images for Digital Ocean VMs Documentation:
 	 * https://developers.digitalocean.com/documentation/v2/#list-all-distribution-images
 	 */
 	@Security.Authenticated(Secured.class)
-	public Promise<Result> listImages(){
+	public Promise<Result> listImages() {
 		WSRequestHolder request = createRequest(Urls.DIGITAL_OCEAN_IMAGES.toString());
 		return request.get().map(function);
 	}
 
 	/**
-	 * List all sizes for Digital Ocean VMs
-	 * Documentation:
+	 * List all sizes for Digital Ocean VMs Documentation:
 	 * https://developers.digitalocean.com/documentation/v2/#list-all-sizes
 	 */
 	@Security.Authenticated(Secured.class)
-	public Promise<Result> listSizes(){
+	public Promise<Result> listSizes() {
 		WSRequestHolder request = createRequest(Urls.DIGITAL_OCEAN_SIZES.toString());
 		return request.get().map(function);
 	}
@@ -146,7 +136,7 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 		WSRequestHolder request = WS.url(url);
 		User user = getUserFromRequest();
 
-		request.setHeader("Authorization", "Bearer " +user.getDigitalOceanToken());
+		request.setHeader("Authorization", "Bearer " + user.getDigitalOceanToken());
 		return request;
 	}
 

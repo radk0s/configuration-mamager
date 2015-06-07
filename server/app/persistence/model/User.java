@@ -2,7 +2,11 @@ package persistence.model;
 
 import java.util.List;
 
-import javax.persistence.*;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Lob;
+import javax.persistence.OneToMany;
 
 import utils.Hasher;
 
@@ -127,9 +131,13 @@ public class User extends AbstractEntity {
 		this.configurations = configurations;
 	}
 
-	public void setAwsPrivateKey(String privateKey) { this.awsPrivateKey = privateKey; }
+	public void setAwsPrivateKey(String privateKey) {
+		this.awsPrivateKey = privateKey;
+	}
 
-	public String getAwsPrivateKey() {return awsPrivateKey; }
+	public String getAwsPrivateKey() {
+		return awsPrivateKey;
+	}
 
 	public String getAwsKeypairName() {
 		return awsKeypairName;
@@ -138,6 +146,5 @@ public class User extends AbstractEntity {
 	public void setAwsKeypairName(String awsKeypairName) {
 		this.awsKeypairName = awsKeypairName;
 	}
-
 
 }

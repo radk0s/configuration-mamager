@@ -1,4 +1,10 @@
-package controllers;
+package controllers.security;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static play.test.Helpers.callAction;
+import static play.test.Helpers.fakeRequest;
+import static play.test.Helpers.status;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,11 +20,6 @@ import play.test.WithApplication;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
-
-import controllers.security.AuthenticationController;
-
-import static org.junit.Assert.*;
-import static play.test.Helpers.*;
 
 public class LoginTest extends WithApplication {
 
@@ -36,14 +37,14 @@ public class LoginTest extends WithApplication {
 	@Test
 	public void signUp() {
 
-		Result result = callAction(controllers.security.routes.ref.RegistrationController.signUp(), fakeRequest()
-				.withFormUrlEncodedBody(ImmutableMap.of("email", "email@gmail.com", "password", "password", "passwordConfirmation", "password")));
+		Result result = callAction(controllers.security.routes.ref.RegistrationController.signUp(),
+				fakeRequest().withFormUrlEncodedBody(ImmutableMap.of("email", "email@gmail.com", "password", "password", "passwordConfirmation", "password")));
 
 		assertEquals(200, status(result));
 
 		User user = userService.findByEmailAndPassword("email@gmail.com", "password");
 		assertNotNull(user);
-		
+
 		final String header = play.test.Helpers.header(AuthenticationController.AUTH_TOKEN, result);
 		assertNotNull(header);
 	}
@@ -58,21 +59,19 @@ public class LoginTest extends WithApplication {
 		userService.save(user);
 
 		// Authenticate
-		Result result = callAction(
-				controllers.security.routes.ref.AuthenticationController.authenticate(),
-				fakeRequest().withFormUrlEncodedBody(
-						ImmutableMap.of("email", "email@gmail.com", "password", "password")));
+		Result result = callAction(controllers.security.routes.ref.AuthenticationController.authenticate(),
+				fakeRequest().withFormUrlEncodedBody(ImmutableMap.of("email", "email@gmail.com", "password", "password")));
 		assertEquals(200, status(result));
 
 		final String header = play.test.Helpers.header(AuthenticationController.AUTH_TOKEN, result);
 		assertNotNull(header);
 
 		// Access method
-		result = callAction(controllers.routes.ref.Application.index(), fakeRequest().withHeader(AuthenticationController.AUTH_TOKEN,header));
+		result = callAction(controllers.routes.ref.Application.index(), fakeRequest().withHeader(AuthenticationController.AUTH_TOKEN, header));
 		assertEquals(200, status(result));
 
 		// Logout
-		result = callAction(controllers.security.routes.ref.AuthenticationController.logout(), fakeRequest().withHeader(AuthenticationController.AUTH_TOKEN,header));
+		result = callAction(controllers.security.routes.ref.AuthenticationController.logout(), fakeRequest().withHeader(AuthenticationController.AUTH_TOKEN, header));
 		assertEquals(303, status(result));
 	}
 

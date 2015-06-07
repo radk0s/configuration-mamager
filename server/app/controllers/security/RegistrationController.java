@@ -1,12 +1,5 @@
 package controllers.security;
 
-import com.amazonaws.auth.AWSCredentials;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.ec2.AmazonEC2Client;
-import com.amazonaws.services.ec2.model.CreateKeyPairRequest;
-import com.amazonaws.services.ec2.model.CreateKeyPairResult;
-import com.amazonaws.services.ec2.model.KeyPair;
-import controllers.communication.Urls;
 import persistence.model.User;
 import persistence.services.UserPersistenceService;
 import play.data.Form;
@@ -53,21 +46,21 @@ public class RegistrationController extends Controller {
 
 	private User createUser(Register register) {
 
-		AWSCredentials credentials = new BasicAWSCredentials(register.awsAccessKey, register.awsSecretKey);
-		AmazonEC2Client amazonEC2Client = new AmazonEC2Client(credentials);
-		amazonEC2Client.setEndpoint(Urls.AWS_URL.toString());
-		CreateKeyPairRequest createKeyPairRequest = new CreateKeyPairRequest();
-
-		createKeyPairRequest.withKeyName("configuration-manager");
-		CreateKeyPairResult createKeyPairResult = amazonEC2Client.createKeyPair(createKeyPairRequest);
-
-		KeyPair keyPair = createKeyPairResult.getKeyPair();
-
-		System.out.println(keyPair.getKeyMaterial());
+		// AWSCredentials credentials = new BasicAWSCredentials(register.awsAccessKey, register.awsSecretKey);
+		// AmazonEC2Client amazonEC2Client = new AmazonEC2Client(credentials);
+		// amazonEC2Client.setEndpoint(Urls.AWS_URL.toString());
+		// CreateKeyPairRequest createKeyPairRequest = new CreateKeyPairRequest();
+		//
+		// createKeyPairRequest.withKeyName("configuration-manager");
+		// CreateKeyPairResult createKeyPairResult = amazonEC2Client.createKeyPair(createKeyPairRequest);
+		//
+		// KeyPair keyPair = createKeyPairResult.getKeyPair();
+		//
+		// System.out.println(keyPair.getKeyMaterial());
 
 		User user = new User();
-		user.setAwsPrivateKey(keyPair.getKeyMaterial());
-		user.setAwsKeypairName(keyPair.getKeyName());
+		// user.setAwsPrivateKey(keyPair.getKeyMaterial());
+		// user.setAwsKeypairName(keyPair.getKeyName());
 		user.setEmail(register.email);
 		user.setPassword(register.password);
 		user.setAwsAccessKey(register.awsAccessKey);

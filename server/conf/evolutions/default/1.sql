@@ -6,7 +6,7 @@
 create table configuration (
   id                        bigint auto_increment not null,
   name                      varchar(255),
-  data                      longtext,
+  data                      clob,
   provider                  integer,
   user_id                   bigint,
   constraint ck_configuration_provider check (provider in (0,1)),
@@ -24,7 +24,7 @@ create table user (
   aws_secret_key            varchar(255),
   aws_access_key            varchar(255),
   digital_ocean_token       varchar(255),
-  aws_private_key           longtext,
+  aws_private_key           clob,
   aws_keypair_name          varchar(255),
   constraint ck_user_PROVIDER check (PROVIDER in (0,1)),
   constraint pk_user primary key (id))
@@ -37,11 +37,11 @@ create index ix_configuration_user_1 on configuration (user_id);
 
 # --- !Downs
 
-SET FOREIGN_KEY_CHECKS=0;
+SET REFERENTIAL_INTEGRITY FALSE;
 
-drop table configuration;
+drop table if exists configuration;
 
-drop table user;
+drop table if exists user;
 
-SET FOREIGN_KEY_CHECKS=1;
+SET REFERENTIAL_INTEGRITY TRUE;
 
