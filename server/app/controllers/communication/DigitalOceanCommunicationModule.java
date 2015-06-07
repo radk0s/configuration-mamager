@@ -89,6 +89,59 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 		return request.get().map(function);
 	}
 
+
+	/**
+	 * REQUEST BODY EXAMPLE : {"type": "snapshot", "name": "Nifty New Snapshot"}
+	 *
+	 * Documentation:
+	 * https://developers.digitalocean.com/documentation/v2/#snapshot-a-droplet
+	 */
+	@Override
+	public Promise<Result> createSnapshot() throws Exception {
+		final String snapshotName = request().body().asJson().get("name").asText();
+		ObjectNode body = Json.newObject().put("type", "snapshot").put("name", snapshotName);
+		return dropletActions(body);
+	}
+
+	/**
+	 * Documentation:
+	 * https://developers.digitalocean.com/documentation/v2/#disable-backups
+	 */
+	@Security.Authenticated(Secured.class)
+	public Promise<Result> disableBackups() throws Exception {
+		ObjectNode body = Json.newObject().put("type", "disable_backups");
+		return dropletActions(body);
+	}
+
+	/**
+	 * Documentation:
+	 * https://developers.digitalocean.com/documentation/v2/#restore-a-droplet
+	 */
+	@Override
+	public Promise<Result> restoreSnapshotOrBackup() throws Exception {
+		final int imageId = request().body().asJson().get("image").asInt();
+		ObjectNode body = Json.newObject().put("type", "snapshot").put("image", imageId);
+		return dropletActions(body);
+	}
+
+	/**
+	 * Documentation:
+	 * https://developers.digitalocean.com/documentation/v2/#list-snapshots-for-a-droplet
+	 */
+	@Override
+	public Promise<Result> listSnapshots(String instanceId) throws Exception {
+		return listBackupsOrSnapshots(instanceId, "snapshots");
+	}
+
+	/**
+	 * Documentation:
+	 * https://developers.digitalocean.com/documentation/v2/#list-backups-for-a-droplet
+	 */
+	@Security.Authenticated(Secured.class)
+	public Promise<Result> listBackups(String instanceId) throws Exception {
+		return listBackupsOrSnapshots(instanceId, "backups");
+	}
+
 	/**
 	 * List all regions for Digital Ocean VMs Documentation:
 	 * https://developers.digitalocean.com/documentation/v2/#list-all-regions
@@ -130,6 +183,12 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	private int getInstanceId() {
 		int instanceId = request().body().asJson().get("instanceId").asInt();
 		return instanceId;
+	}
+
+	private Promise<Result> listBackupsOrSnapshots(String instanceId, String type) {
+		String url = Urls.DIGITAL_OCEAN_URL.toString() + instanceId + "/" + type;
+		WSRequestHolder request = createRequest(url);
+		return request.get().map(function);
 	}
 
 	private WSRequestHolder createRequest(String url) {

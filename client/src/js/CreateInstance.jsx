@@ -169,7 +169,7 @@ module.exports =  React.createClass({
       "size": this.refs.size.getValue(),
       "image": this.refs.image.getValue(),
       "ssh_keys": null,
-      "backups": false,
+      "backups": this.refs.backups.getValue(),
       "ipv6": true,
       "user_data": null,
       "private_networking": null
@@ -304,6 +304,10 @@ module.exports =  React.createClass({
           </Input>
           <Input type='select' value={this.state.size} onChange={this.handleDOSizeSelect} label='size' ref={'size'}>
             {sizes}
+          </Input>
+          <Input type='select' value={this.state.backups} onChange={() => { this.setState({backups: this.refs.backups.getValue()})}} label='Enable automatic backups?' ref={'backups'}>
+            <option value="false" key="1">No</option>
+            <option value="true" key="2">Yes</option>
           </Input>
           <Input type='select' value={this.state.saveConfig} onChange={() => { this.setState({saveConfig: this.refs.saveConfig.getValue()})}} label='Save Configuration?' ref={'saveConfig'}>
             <option value="no" key="1">No</option>

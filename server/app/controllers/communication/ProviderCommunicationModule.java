@@ -21,4 +21,13 @@ public interface ProviderCommunicationModule {
 
 	@Authenticated(Secured.class)
 	Promise<Result> listInstances() throws Exception;
+
+	@Authenticated(Secured.class)
+	Promise<Result> createSnapshot() throws Exception;
+
+	@Authenticated(Secured.class)
+	Promise<Result> restoreSnapshotOrBackup() throws Exception;
+
+	@Authenticated(Secured.class)
+	Promise<Result> listSnapshots(String instanceId) throws Exception;
 }

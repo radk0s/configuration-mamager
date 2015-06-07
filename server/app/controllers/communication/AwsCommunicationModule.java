@@ -130,6 +130,60 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 		return wrapResultAsPromise(ok(json));
 	}
 
+	@Override
+	public Promise<Result> createSnapshot() throws Exception {
+		JsonNode json = request().body().asJson();
+		AmazonEC2Client amazonEC2Client = createEC2Client();
+
+		final String snapshotName = json.get("name").asText();
+		final String volumeId = json.get("instanceId").asText();
+
+		CreateSnapshotRequest createSnapshotRequest = new CreateSnapshotRequest()
+				.withVolumeId(volumeId)
+				.withDescription(snapshotName);
+
+		return wrapResultAsPromise(ok(Json.toJson(amazonEC2Client.createSnapshot(createSnapshotRequest))));
+	}
+
+	@Override
+	public Promise<Result> restoreSnapshotOrBackup() throws Exception {
+		JsonNode json = request().body().asJson();
+		AmazonEC2Client amazonEC2Client = createEC2Client();
+
+		final String snapshotId = json.get("image").asText();
+		final String instanceId = json.get("instanceId").asText();
+
+		AvailabilityZone availabilityZone = amazonEC2Client.describeAvailabilityZones().getAvailabilityZones().get(0);
+
+		CreateVolumeRequest createVaultRequest = new CreateVolumeRequest()
+				.withSnapshotId(snapshotId)
+				.withAvailabilityZone(availabilityZone.getZoneName());
+
+		Volume volume = amazonEC2Client.createVolume(createVaultRequest).getVolume();
+
+		AttachVolumeRequest attachVolumeRequest = new AttachVolumeRequest()
+				.withVolumeId(volume.getVolumeId())
+				.withInstanceId(instanceId);
+				//.withDevice()
+
+		return wrapResultAsPromise(ok(Json.toJson(amazonEC2Client.attachVolume(attachVolumeRequest))));
+	}
+
+	@Override
+	public Promise<Result> listSnapshots(String instanceId) throws Exception {
+		AmazonEC2Client amazonEC2Client = createEC2Client();
+
+		Filter filter = new Filter()
+				.withName("volume-id")
+				.withValues(instanceId);
+
+		DescribeSnapshotsRequest describeSnapshotsRequest = new DescribeSnapshotsRequest()
+				.withFilters(filter);
+
+		ObjectNode json = createListSnapshotsResponseJson(amazonEC2Client.describeSnapshots(describeSnapshotsRequest).getSnapshots());
+		return wrapResultAsPromise(ok(json));
+	}
+
 
 	@Security.Authenticated(Secured.class)
 	public Promise<Result> listAvailableImages() {
@@ -179,6 +233,12 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 			keyNames.add(keyPairInfo.getKeyName());
 		}
 		return Json.toJson(keyNames);
+	}
+
+	private ObjectNode createListSnapshotsResponseJson(List<Snapshot> snapshots) {
+		ObjectNode jsonNode = Json.newObject();
+		jsonNode.put("snapshots", Json.toJson(snapshots));
+		return jsonNode;
 	}
 
 	private JsonNode createListImagesResponseJson() {

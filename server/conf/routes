@@ -3,44 +3,50 @@
 # ~~~~
 
 # Home page
-GET           /                          controllers.Assets.at(path="/public", file="/index.html")
+GET           /                                 controllers.Assets.at(path="/public", file="/index.html")
 
-GET           /index                     controllers.Application.index()
-GET           /hello                     @controllers.Application.hello()
-POST          /terminal                  @controllers.Application.startTerminal()
+GET           /index                            controllers.Application.index()
+GET           /hello                            @controllers.Application.hello()
+POST          /terminal                         @controllers.Application.startTerminal()
 
 
-POST          /login                     @controllers.security.AuthenticationController.authenticate()
-POST          /logout                    @controllers.security.AuthenticationController.logout()
+POST          /login                            @controllers.security.AuthenticationController.authenticate()
+POST          /logout                           @controllers.security.AuthenticationController.logout()
 
 # User Registration
-POST          /signup                    @controllers.security.RegistrationController.signUp()
+POST          /signup                           @controllers.security.RegistrationController.signUp()
 
-#GET           /instances/all            @controllers.communication.CommonCommunicationModule.listAllInstances()
+GET           /instances/do                     @controllers.communication.DigitalOceanCommunicationModule.listInstances()
+PUT           /instances/do                     @controllers.communication.DigitalOceanCommunicationModule.createInstance()
+DELETE        /instances/do                     @controllers.communication.DigitalOceanCommunicationModule.deleteInstance()
+POST          /instances/do/run                 @controllers.communication.DigitalOceanCommunicationModule.runInstance()
+POST          /instances/do/stop                @controllers.communication.DigitalOceanCommunicationModule.stopInstance()
+POST          /instances/do/snapshot            @controllers.communication.DigitalOceanCommunicationModule.createSnapshot()
+POST          /instances/do/restore             @controllers.communication.DigitalOceanCommunicationModule.restoreSnapshotOrBackup()
+GET           /snapshots/do/:instanceId         @controllers.communication.DigitalOceanCommunicationModule.listSnapshots(instanceId: String)
+GET           /backups/do/:instanceId           @controllers.communication.DigitalOceanCommunicationModule.listBackups(instanceId: String)
+POST          /backups/do/disable               @controllers.communication.DigitalOceanCommunicationModule.disableBackups()
+GET           /regions/do                       @controllers.communication.DigitalOceanCommunicationModule.listRegions()
+GET           /images/do                        @controllers.communication.DigitalOceanCommunicationModule.listImages()
+GET           /sizes/do                         @controllers.communication.DigitalOceanCommunicationModule.listSizes()
 
-GET           /instances/do              @controllers.communication.DigitalOceanCommunicationModule.listInstances()
-PUT           /instances/do              @controllers.communication.DigitalOceanCommunicationModule.createInstance()
-DELETE        /instances/do              @controllers.communication.DigitalOceanCommunicationModule.deleteInstance()
-POST          /instances/do/run          @controllers.communication.DigitalOceanCommunicationModule.runInstance()
-POST          /instances/do/stop         @controllers.communication.DigitalOceanCommunicationModule.stopInstance()
-GET           /regions/do                @controllers.communication.DigitalOceanCommunicationModule.listRegions()
-GET           /images/do                 @controllers.communication.DigitalOceanCommunicationModule.listImages()
-GET           /sizes/do                  @controllers.communication.DigitalOceanCommunicationModule.listSizes()
+GET           /instances/aws                    @controllers.communication.AwsCommunicationModule.listInstances()
+PUT           /instances/aws                    @controllers.communication.AwsCommunicationModule.createInstance()
+DELETE        /instances/aws                    @controllers.communication.AwsCommunicationModule.deleteInstance()
+POST          /instances/aws/run                @controllers.communication.AwsCommunicationModule.runInstance()
+POST          /instances/aws/stop               @controllers.communication.AwsCommunicationModule.stopInstance()
+POST          /instances/aws/snapshot           @controllers.communication.AwsCommunicationModule.createSnapshot()
+POST          /instances/aws/restore            @controllers.communication.AwsCommunicationModule.restoreSnapshotOrBackup()
+GET           /snapshots/aws/:instanceId        @controllers.communication.AwsCommunicationModule.listSnapshots(instanceId: String)
+GET           /imageids/aws                     @controllers.communication.AwsCommunicationModule.listAvailableImages()
+GET           /instancetypes/aws                @controllers.communication.AwsCommunicationModule.listInstanceTypes()
+GET           /keynames/aws                     @controllers.communication.AwsCommunicationModule.listKeyNames()
+GET           /securitygroups/aws               @controllers.communication.AwsCommunicationModule.listSecurityGroups()
 
-GET           /instances/aws             @controllers.communication.AwsCommunicationModule.listInstances()
-PUT           /instances/aws             @controllers.communication.AwsCommunicationModule.createInstance()
-DELETE        /instances/aws             @controllers.communication.AwsCommunicationModule.deleteInstance()
-POST          /instances/aws/run         @controllers.communication.AwsCommunicationModule.runInstance()
-POST          /instances/aws/stop        @controllers.communication.AwsCommunicationModule.stopInstance()
-GET           /imageids/aws              @controllers.communication.AwsCommunicationModule.listAvailableImages()
-GET           /instancetypes/aws         @controllers.communication.AwsCommunicationModule.listInstanceTypes()
-GET           /keynames/aws              @controllers.communication.AwsCommunicationModule.listKeyNames()
-GET           /securitygroups/aws        @controllers.communication.AwsCommunicationModule.listSecurityGroups()
-
-GET           /configuration             @controllers.configuration.ConfigurationController.getConfigurations()
-POST          /configuration             @controllers.configuration.ConfigurationController.createConfiguration()
-DELETE        /configuration             @controllers.configuration.ConfigurationController.deleteConfiguration()
+GET           /configuration                    @controllers.configuration.ConfigurationController.getConfigurations()
+POST          /configuration                    @controllers.configuration.ConfigurationController.createConfiguration()
+DELETE        /configuration                    @controllers.configuration.ConfigurationController.deleteConfiguration()
 
 
 # Map static resources from the /public folder to the /assets URL path
-GET           /*file                     controllers.Assets.at(path="/public", file)
+GET           /*file                            controllers.Assets.at(path="/public", file)
