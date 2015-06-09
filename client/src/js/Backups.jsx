@@ -64,7 +64,7 @@ let Backups = React.createClass({
       .end((err, res) => {
         console.log(res.body);
         component.setState({
-          backups: res.body.backups
+          backups: res.body?res.body.backups:[]
         });
       });
   },

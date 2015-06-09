@@ -30,7 +30,7 @@ let Snapshots = React.createClass({
   },
 
   getVolumeId(item) {
-    return item.blockDeviceMappings[0].ebs.volumeId;
+    return item.blockDeviceMappings[0]?item.blockDeviceMappings[0].ebs.volumeId:null;
   },
 
   handleDropletNameChange() {
@@ -94,9 +94,8 @@ let Snapshots = React.createClass({
         .set('authToken', auth.getToken())
         .set('Accept', 'application/json')
         .end((err, res) => {
-          console.log(res.body);
           component.setState({
-            snapshots: res.body.snapshots
+            snapshots: res.body?res.body.snapshots:[]
           });
         });
     },
