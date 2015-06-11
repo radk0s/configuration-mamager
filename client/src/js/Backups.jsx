@@ -12,7 +12,8 @@ let Backups = React.createClass({
     return {
       backups: [],
       DO: [],
-      dropletName: ""
+      dropletName: "",
+      backupsEnabled: false
     }
   },
   componentDidMount() {
@@ -27,8 +28,17 @@ let Backups = React.createClass({
   },
 
   handleDropletNameChange() {
+    var dropletName = this.refs.dropletName.getValue();
+    var backupsEnabled = false;
+    this.state.DO.map(function(item) {
+      if( item.id == dropletName && _.contains(item.features, "backups") === true ) {
+        backupsEnabled = true;
+      }
+    });
+
     this.setState({
-      dropletName: this.refs.dropletName.getValue()
+      dropletName: dropletName,
+      backupsEnabled: backupsEnabled
     });
   },
 
@@ -74,7 +84,10 @@ let Backups = React.createClass({
     var component = this;
 
     var dropletsNamesDO = this.state.DO.map(function(item, index) {
-      return <option value={item.id} key={index}>{item.name}</option>;
+      if ( _.size(item.backup_ids) > 0 || _.contains(item.features, "backups") === true ) {
+        return <option value={item.id} key={index}>{item.name}</option>;
+      }
+
     });
 
     var backups = this.state.backups.map(function(item) {
@@ -104,7 +117,7 @@ let Backups = React.createClass({
     }
 
     function disableBackupsForDroplet() {
-      var instanceId = component.state.dropletId;
+      var instanceId = component.state.dropletName;
       request
         .post(`/backups/do/disable`)
         .set('authToken', auth.getToken())
@@ -125,7 +138,7 @@ let Backups = React.createClass({
           <Input type='select' value={this.state.dropletName} onChange={this.handleDropletNameChange} ref={'dropletName'} label="Select droplet name: ">
             {dropletsNamesDO}
           </Input>
-          <Button bsSize='large' onClick={() => disableBackupsForDroplet()}>Disable backups for droplet</Button>
+          {this.state.backupsEnabled ? <Button bsSize='large' onClick={() => disableBackupsForDroplet()}>Disable backups for droplet</Button> : ''}
         </div>
         <Table responsive>
           <thead>
