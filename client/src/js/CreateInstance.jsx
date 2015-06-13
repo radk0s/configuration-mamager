@@ -323,7 +323,7 @@ module.exports =  React.createClass({
           });
         });
         createForm = <form style={{width: '60%', 'margin-left': 10, 'margin-right': 'auto'}} onSubmit={this.handleDOSubmit}>
-          <Input type='text' value={this.state.name} onChange={() => { this.setState({name: this.refs.name.getValue()})}} label='name' ref={'name'}/>
+          <Input type='text' value={this.state.name} onChange={() => { this.setState({name: this.refs.name.getValue()})}} label='name' ref={'name'} help='Name can only contain alphanumeric characters, dashes, and periods.'/>
           <Input type='select' value={this.state.image} onChange={this.handleDOImageSelect} label='image' ref={'image'}>
             {images}
           </Input>
