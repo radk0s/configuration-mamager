@@ -68,9 +68,10 @@ let Backups = React.createClass({
         component.setState({
           DO: results.DO,
           loaded: true
-        }, () => { console.log("results fetched")});
+        },
+        component.listBackups(),
+        () => { console.log("results fetched")});
       });
-    this.listBackups();
   },
 
   listBackups() {

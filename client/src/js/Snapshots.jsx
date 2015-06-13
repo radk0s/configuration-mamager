@@ -87,9 +87,10 @@ let Snapshots = React.createClass({
           DO: results.DO,
           AWS: results.AWS,
           loaded: true
-        }, () => { console.log("results fetched")});
+        },
+        component.listSnapshots(),
+        () => { console.log("results fetched")});
       });
-    this.listSnapshots();
   },
 
   listSnapshots() {

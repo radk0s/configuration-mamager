@@ -173,6 +173,8 @@ module.exports =  React.createClass({
 
     let component = this;
 
+    var saveConfig = this.refs.saveConfig.getValue();
+
     let configuration = {
       "name": this.refs.name.getValue(),
       "region": this.refs.region.getValue(),
@@ -191,26 +193,26 @@ module.exports =  React.createClass({
       .set('Accept', 'application/json')
       .send(configuration)
       .end((err, res) => {
+
+        if(saveConfig === "yes") {
+          console.log("Saving configuration " + configuration.name);
+          request
+            .post('/configuration')
+            .set('authToken', auth.getToken())
+            .set('Accept', 'application/json')
+            .send({ name: 'DO-' + moment().format(),
+              provider: 'DIGITAL_OCEAN',
+              data: JSON.stringify(configuration)
+            })
+            .end((err, res) => {
+            });
+        }
+
         component.setState({
           loaded: true
-        })
-        console.log(res);
-      });
-
-    if(this.refs.saveConfig.getValue() === "yes") {
-      console.log("Saving configuration " + configuration.name);
-      request
-        .post('/configuration')
-        .set('authToken', auth.getToken())
-        .set('Accept', 'application/json')
-        .send({ name: 'DO-' + moment().format(),
-          provider: 'DIGITAL_OCEAN',
-          data: JSON.stringify(configuration)
-        })
-        .end((err, res) => {
-
         });
-    }
+
+      });
   },
   handleAWSSubmit (event) {
 
@@ -224,6 +226,7 @@ module.exports =  React.createClass({
     var instanceType = this.refs.instanceType.getValue();
     var keyName = this.refs.keyName.getValue();
     var securityGroup = this.refs.securityGroup.getValue();
+    var saveConfig = this.refs.saveConfig.getValue();
 
     let configuration = {
       imageId,
@@ -238,23 +241,25 @@ module.exports =  React.createClass({
       .set('Accept', 'application/json')
       .send(configuration)
       .end((err, res) => {
-        component.setState({
-          loaded: true
-        })
+
+        if(saveConfig === "yes") {
+          request
+            .post('/configuration')
+            .set('authToken', auth.getToken())
+            .set('Accept', 'application/json')
+            .send({ name: 'AWS-' + moment().format(),
+              provider: 'AWS',
+              data: JSON.stringify(configuration)
+            })
+            .end((err, res) => {
+              component.setState({
+                loaded: true
+              });
+            });
+        }
       });
 
-    if(this.refs.saveConfig.getValue() === "yes") {
-      request
-        .post('/configuration')
-        .set('authToken', auth.getToken())
-        .set('Accept', 'application/json')
-        .send({ name: 'AWS-' + moment().format(),
-          provider: 'AWS',
-          data: JSON.stringify(configuration)
-        })
-        .end((err, res) => {
-        });
-    }
+
 
   },
   render() {
