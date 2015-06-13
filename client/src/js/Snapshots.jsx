@@ -4,6 +4,7 @@ const request = require('superagent');
 const async = require("async");
 const _ = require('underscore');
 const {Grid, Row, Col, Table, Button, Input} = require('react-bootstrap');
+const Loader = require('react-loader');
 
 
 let Snapshots = React.createClass({
@@ -15,7 +16,9 @@ let Snapshots = React.createClass({
       AWS: [],
       dropletId: "",
       dropletProvider: "",
-      dropletValue: ""
+      dropletValue: "",
+      snapshotsLoaded: false,
+      loaded: false
     }
   },
   componentDidMount() {
@@ -39,7 +42,8 @@ let Snapshots = React.createClass({
     this.setState({
       dropletProvider: provider,
       dropletId: dropletData[1],
-      dropletValue: this.refs.dropletId.getValue()
+      dropletValue: this.refs.dropletId.getValue(),
+      snapshotsLoaded: false
     });
     if( provider === "aws") {
       this.setState({
@@ -57,8 +61,10 @@ let Snapshots = React.createClass({
             .set('authToken', auth.getToken())
             .set('Accept', 'application/json')
             .end((err, res) => {
-              if (typeof res != "undefined" || res != null) {
+              if ( !_.isEmpty(res) && !_.isEmpty(res.body) && !_.isEmpty(res.body.droplets) ) {
                 callback(null, res.body.droplets);
+              } else {
+                callback(null, []);
               }
             });
         },
@@ -68,8 +74,10 @@ let Snapshots = React.createClass({
             .set('authToken', auth.getToken())
             .set('Accept', 'application/json')
             .end((err, res) => {
-              if (typeof res != "undefined" || res != null) {
+              if ( !_.isEmpty(res) && !_.isEmpty(res.body) ) {
                 callback(null, _.values(res.body));
+              } else {
+                callback(null, []);
               }
             });
         }
@@ -77,7 +85,8 @@ let Snapshots = React.createClass({
       function(err, results) {
         component.setState({
           DO: results.DO,
-          AWS: results.AWS
+          AWS: results.AWS,
+          loaded: true
         }, () => { console.log("results fetched")});
       });
     this.listSnapshots();
@@ -95,7 +104,8 @@ let Snapshots = React.createClass({
         .set('Accept', 'application/json')
         .end((err, res) => {
           component.setState({
-            snapshots: res.body?res.body.snapshots:[]
+            snapshots: res.body?res.body.snapshots:[],
+            snapshotsLoaded: true
           });
         });
     },
@@ -177,27 +187,32 @@ let Snapshots = React.createClass({
 
     return(
       <div>
-        <div style={{width: '40%', 'margin-left': 10}}>
-          <Input type='select' value={this.state.dropletValue} onChange={this.handleDropletNameChange} ref={'dropletId'} label="Select droplet name: ">
-            {dropletsNamesDO}
-            {dropletsNamesAWS}
-          </Input>
-          <Input type='text' value={this.state.newSnapshotName} onChange={() => { this.setState({newSnapshotName: this.refs.newSnapshotName.getValue()})}} label='Create new snapshot for selected droplet:' ref={'newSnapshotName'}/>
-          <Button bsSize='large' onClick={() => createNewSnapshot()}>Create new snapshot</Button>
-        </div>
-        <Table responsive>
-          <thead>
-          <tr>
-            <th>Name</th>
-            <th>Provider</th>
-            <th>Created at</th>
-            <th>Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          {snapshots}
-          </tbody>
-        </Table>
+        <Loader loaded={this.state.loaded}>
+          <div style={{width: '40%', 'margin-left': 10}}>
+            <Input type='select' value={this.state.dropletValue} onChange={this.handleDropletNameChange} ref={'dropletId'} label="Select droplet name: ">
+              <option value="" key="snapshot_placeholder" hidden>Please select...</option>
+              {dropletsNamesDO}
+              {dropletsNamesAWS}
+            </Input>
+            <Input type='text' value={this.state.newSnapshotName} onChange={() => { this.setState({newSnapshotName: this.refs.newSnapshotName.getValue()})}} label='Create new snapshot for selected droplet:' ref={'newSnapshotName'}/>
+            <Button bsSize='large' onClick={() => createNewSnapshot()}>Create new snapshot</Button>
+          </div>
+          <Loader loaded={this.state.snapshotsLoaded}>
+            <Table responsive>
+              <thead>
+              <tr>
+                <th>Name</th>
+                <th>Provider</th>
+                <th>Created at</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              {snapshots}
+              </tbody>
+            </Table>
+          </Loader>
+        </Loader>
       </div>);
   }
 });

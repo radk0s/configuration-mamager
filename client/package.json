@@ -28,22 +28,25 @@
   },
   "jest": {
     "scriptPreprocessor": "./preprocessor.js",
-    "unmockedModulePathPatterns": ["react"]
+    "unmockedModulePathPatterns": [
+      "react"
+    ]
   },
   "dependencies": {
+    "6to5-jest": "*",
+    "async": "0.9.2",
+    "bootstrap": "3.3.4",
     "flux": "2.0.3",
+    "jest": "*",
     "joi": "^6.4.1",
+    "moment": "2.10.3",
     "object-assign": "2.0.0",
     "react": "0.13.3",
-    "react-router": "0.13.3",
     "react-bootstrap": "0.22.4",
-    "bootstrap": "3.3.4",
-    "superagent": "1.2.0",
+    "react-loader": "^1.4.0",
+    "react-router": "0.13.3",
     "react-router-bootstrap": "0.14.0",
-    "async": "0.9.2",
-    "underscore": "1.8.3",
-    "moment": "2.10.3",
-    "6to5-jest": "*",
-    "jest":"*"
+    "superagent": "1.2.0",
+    "underscore": "1.8.3"
   }
 }

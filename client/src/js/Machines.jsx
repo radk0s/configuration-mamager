@@ -8,6 +8,7 @@ const _ = require('underscore');
 const moment = require('moment');
 const CreateInstance = require('./CreateInstance.jsx');
 const TerminalModal = require('./TerminalModal.jsx');
+const Loader = require('react-loader');
 
 let Machines = React.createClass({
   mixins: [React.addons.LinkedStateMixin],
@@ -15,7 +16,8 @@ let Machines = React.createClass({
         return {
             DO: [],
             AWS: [],
-            confs: []
+            confs: [],
+            loaded: false
         }
     },
     componentDidMount() {
@@ -39,6 +41,7 @@ let Machines = React.createClass({
     },
     listMachines() {
       let component = this;
+
       async.parallel({
           DO: function(callback){
             request
@@ -46,8 +49,10 @@ let Machines = React.createClass({
               .set('authToken', auth.getToken())
               .set('Accept', 'application/json')
               .end((err, res) => {
-                if (typeof res != "undefined" || res != null) {
+                if ( !_.isEmpty(res) && !_.isEmpty(res.body) && !_.isEmpty(res.body.droplets) ) {
                   callback(null, res.body.droplets);
+                } else {
+                  callback(null, []);
                 }
               });
           },
@@ -57,8 +62,10 @@ let Machines = React.createClass({
               .set('authToken', auth.getToken())
               .set('Accept', 'application/json')
               .end((err, res) => {
-                if (typeof res != "undefined" || res != null) {
+                if ( !_.isEmpty(res) && !_.isEmpty(res.body) ) {
                   callback(null, _.values(res.body));
+                } else {
+                  callback(null, []);
                 }
               });
           }
@@ -66,7 +73,8 @@ let Machines = React.createClass({
         function(err, results) {
           component.setState({
             DO: results.DO,
-            AWS: results.AWS
+            AWS: results.AWS,
+            loaded: true
           }, () => { console.log("results fetched")});
         });
     },
@@ -156,6 +164,7 @@ let Machines = React.createClass({
 
         return(
           <div>
+            <Loader loaded={this.state.loaded}>
             <Table responsive>
               <thead>
                 <tr>
@@ -177,6 +186,7 @@ let Machines = React.createClass({
             <ModalTrigger modal={<CreateInstance title={`Create Instance`} confs={_.values(this.state.confs)}/>} >
               <Button bsSize='large'>Create instances</Button>
             </ModalTrigger>
+            </Loader>
           </div>);
     }
 });

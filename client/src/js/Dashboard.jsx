@@ -2,6 +2,7 @@ const React = require('react');
 const auth = require('./Auth.js');
 const request = require('superagent');
 const {Grid, Row, Col} = require('react-bootstrap');
+const Loader = require('react-loader');
 
 
 let Dashboard = React.createClass({
@@ -11,7 +12,8 @@ let Dashboard = React.createClass({
         userEmail: "",
         userDOToken: "",
         userAWSAccessKey: "",
-        userAWSSecretKey: ""
+        userAWSSecretKey: "",
+        loaded: false
       }
     },
     componentDidMount() {
@@ -21,6 +23,7 @@ let Dashboard = React.createClass({
         .set('authToken', auth.getToken())
         .set('Accept', 'application/json')
         .end((err, res) => {
+          res.body.loaded = true;
           console.log(res.body);
           this.setState(res.body);
         });
@@ -38,9 +41,11 @@ let Dashboard = React.createClass({
         return <Row className='show-grid'>{item}</Row>;
       });
       return (
+      <Loader loaded={this.state.loaded}>
       <Grid>
         {rows}
       </Grid>
+      </Loader>
       );
     }
   });

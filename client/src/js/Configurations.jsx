@@ -2,12 +2,14 @@ const React = require('react');
 const auth = require("./Auth.js");
 const request = require('superagent');
 const {Grid, Row, Col, Table, Button} = require('react-bootstrap');
+const Loader = require('react-loader');
 
 
 let Configurations = React.createClass({
   getInitialState() {
     return {
-      configs: []
+      configs: [],
+      loaded: false
     }
   },
   componentDidMount() {
@@ -28,7 +30,8 @@ let Configurations = React.createClass({
       .end((err, res) => {
         console.log(res.body);
         component.setState({
-          configs: res.body
+          configs: res.body,
+          loaded: true
         });
       });
   },
@@ -61,6 +64,7 @@ let Configurations = React.createClass({
 
     return(
       <div>
+        <Loader loaded={this.state.loaded}>
         <Table responsive>
           <thead>
           <tr>
@@ -72,6 +76,7 @@ let Configurations = React.createClass({
             {configs}
           </tbody>
         </Table>
+        </Loader>
       </div>);
   }
 });

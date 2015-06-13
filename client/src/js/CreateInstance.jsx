@@ -5,6 +5,7 @@ const request = require('superagent');
 const auth = require("./Auth.js");
 const moment = require('moment');
 const _ = require('underscore');
+const Loader = require('react-loader');
 
 module.exports =  React.createClass({
   getInitialState() {
@@ -20,7 +21,9 @@ module.exports =  React.createClass({
       AWSInstanceTypes: [],
       AWSKeys: [],
       AWSSecurityGroups: [],
-      isDOSelectedFromConfiguration: false
+      isDOSelectedFromConfiguration: false,
+      loaded: true,
+      configurations: ""
     }
   },
 
@@ -149,7 +152,8 @@ module.exports =  React.createClass({
   handleSelectConfChange() {
 
     this.setState({
-      isDOSelectedFromConfiguration: true
+      isDOSelectedFromConfiguration: true,
+      configurations: this.refs.configurations.getValue()
     });
 
     let confId = parseInt(this.refs.configurations.getValue());
@@ -162,6 +166,12 @@ module.exports =  React.createClass({
     this.setState(conf);
   },
   handleDOSubmit(event) {
+
+    this.setState({
+      loaded: false
+    });
+
+    let component = this;
 
     let configuration = {
       "name": this.refs.name.getValue(),
@@ -181,6 +191,9 @@ module.exports =  React.createClass({
       .set('Accept', 'application/json')
       .send(configuration)
       .end((err, res) => {
+        component.setState({
+          loaded: true
+        })
         console.log(res);
       });
 
@@ -200,6 +213,13 @@ module.exports =  React.createClass({
     }
   },
   handleAWSSubmit (event) {
+
+    this.setState({
+      loaded: false
+    });
+
+    let component = this;
+
     var imageId = this.refs.imageId.getValue();
     var instanceType = this.refs.instanceType.getValue();
     var keyName = this.refs.keyName.getValue();
@@ -218,6 +238,9 @@ module.exports =  React.createClass({
       .set('Accept', 'application/json')
       .send(configuration)
       .end((err, res) => {
+        component.setState({
+          loaded: true
+        })
       });
 
     if(this.refs.saveConfig.getValue() === "yes") {
@@ -335,11 +358,14 @@ module.exports =  React.createClass({
 
           <h4>Select recent configuration:</h4>
 
-          <Input type='select' ref='configurations' onChange={this.handleSelectConfChange}>
+          <Input type='select' ref='configurations' value={this.state.configurations} onChange={this.handleSelectConfChange}>
+            <option value="" key="conf_placeholder" hidden>Please select...</option>
             {options}
           </Input>
         </div>
+        <Loader loaded={this.state.loaded}>
         {createForm}
+        </Loader>
       </Modal>
     );
   }

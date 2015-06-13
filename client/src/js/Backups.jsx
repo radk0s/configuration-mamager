@@ -4,6 +4,8 @@ const request = require('superagent');
 const async = require("async");
 const _ = require('underscore');
 const {Grid, Row, Col, Table, Button, Input, Alert} = require('react-bootstrap');
+const Loader = require('react-loader');
+
 
 
 let Backups = React.createClass({
@@ -13,7 +15,9 @@ let Backups = React.createClass({
       backups: [],
       DO: [],
       dropletName: "",
-      backupsEnabled: false
+      backupsEnabled: false,
+      backupsLoaded: false,
+      loaded: false
     }
   },
   componentDidMount() {
@@ -38,7 +42,8 @@ let Backups = React.createClass({
 
     this.setState({
       dropletName: dropletName,
-      backupsEnabled: backupsEnabled
+      backupsEnabled: backupsEnabled,
+      backupsLoaded: false
     });
   },
 
@@ -51,15 +56,18 @@ let Backups = React.createClass({
             .set('authToken', auth.getToken())
             .set('Accept', 'application/json')
             .end((err, res) => {
-              if (typeof res != "undefined" || res != null) {
+              if ( !_.isEmpty(res) && !_.isEmpty(res.body) && !_.isEmpty(res.body.droplets) ) {
                 callback(null, res.body.droplets);
+              } else {
+                callback(null, []);
               }
             });
         }
       },
       function(err, results) {
         component.setState({
-          DO: results.DO
+          DO: results.DO,
+          loaded: true
         }, () => { console.log("results fetched")});
       });
     this.listBackups();
@@ -74,7 +82,8 @@ let Backups = React.createClass({
       .end((err, res) => {
         console.log(res.body);
         component.setState({
-          backups: res.body?res.body.backups:[]
+          backups: res.body?res.body.backups:[],
+          backupsLoaded: true
         });
       });
   },
@@ -134,25 +143,30 @@ let Backups = React.createClass({
         <Alert bsStyle='info'>
           Backups functionality is only provided for <strong>Digital Ocean</strong> machines.
         </Alert>
-        <div style={{width: '40%', 'margin-left': 10}}>
-          <Input type='select' value={this.state.dropletName} onChange={this.handleDropletNameChange} ref={'dropletName'} label="Select droplet name: ">
-            {dropletsNamesDO}
-          </Input>
-          {this.state.backupsEnabled ? <Button bsSize='large' onClick={() => disableBackupsForDroplet()}>Disable backups for droplet</Button> : ''}
-        </div>
-        <Table responsive>
-          <thead>
-          <tr>
-            <th>Name</th>
-            <th>Provider</th>
-            <th>Created at</th>
-            <th>Actions</th>
-          </tr>
-          </thead>
-          <tbody>
-          {backups}
-          </tbody>
-        </Table>
+        <Loader loaded={this.state.loaded}>
+          <div style={{width: '40%', 'margin-left': 10}}>
+            <Input type='select' value={this.state.dropletName} onChange={this.handleDropletNameChange} ref={'dropletName'} label="Select droplet name: ">
+              <option value="" key="backup_placeholder" hidden>Please select...</option>
+              {dropletsNamesDO}
+            </Input>
+            {this.state.backupsEnabled ? <Button bsSize='large' onClick={() => disableBackupsForDroplet()}>Disable backups for droplet</Button> : ''}
+          </div>
+          <Loader loaded={this.state.backupsLoaded}>
+            <Table responsive>
+              <thead>
+              <tr>
+                <th>Name</th>
+                <th>Provider</th>
+                <th>Created at</th>
+                <th>Actions</th>
+              </tr>
+              </thead>
+              <tbody>
+              {backups}
+              </tbody>
+            </Table>
+          </Loader>
+        </Loader>
       </div>);
   }
 });
