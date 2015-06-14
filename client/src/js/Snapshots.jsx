@@ -112,11 +112,12 @@ let Snapshots = React.createClass({
     let component = this;
     if(component.state.dropletProvider == "aws") 
     component.getDevices();
-    let id = this.state.dropletId;
-    if( this.state.dropletProvider === "aws" ) {
-      id = this.state.awsVolumeIds;
+    
+    let id = this.state.awsVolumeIds;
+    if( this.state.dropletProvider === "do" ) {
+    	 id = [this.state.dropletId];
     }
-    this.fetch(`/snapshots/${this.state.dropletProvider}/`,'post',  {id}, 'snapshots', (data) => {
+    this.fetch(`/snapshots/${this.state.dropletProvider}/`,'post',  id, 'snapshots', (data) => {
       return data ? data.snapshots : []
     });
   },
