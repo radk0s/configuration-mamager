@@ -85,7 +85,7 @@ let Snapshots = React.createClass({
 
   restore(imageId) {
     var instanceId = this.state.dropletId;
-    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instanceId: instanceId, image: imageId});
+    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instanceId: instanceId, image: imageId}, 'snapshotStatus');
 
   },
   createNewSnapshot() {
@@ -121,7 +121,7 @@ let Snapshots = React.createClass({
             <td>DO</td>
             <td>{item.created_at}</td>
             <td>
-              <Button bsSize='small' onClick={() => this.restore(item.id)}>Restore</Button>
+              <Button bsSize='small' onClick={() => component.restore(item.id)}>Restore</Button>
             </td>
           </tr>
         )
@@ -133,7 +133,7 @@ let Snapshots = React.createClass({
             <td>AWS</td>
             <td>{item.startTime}</td>
             <td>
-              <Button bsSize='small' onClick={() => this.restore(item.snapshotId)}>Restore</Button>
+              <Button bsSize='small' onClick={() => component.restore(item.snapshotId)}>Restore</Button>
             </td>
           </tr>
         )
