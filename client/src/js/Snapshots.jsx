@@ -33,8 +33,7 @@ let Snapshots = React.createClass({
   componentDidMount() {
 
     this.listDroplets();	
-    this.getDevices();
-    this.listSnapshots();
+
     this.setState({
       interval: setInterval(this.listDroplets, 5000)
     });
@@ -97,8 +96,8 @@ let Snapshots = React.createClass({
   getDevices() {
 	  let id = this.state.dropletId;
 	  let self = this;
-	  var awsVolumes=this.state.awsVolumeIds?this.state.awsVolumeIds:[];
-	  this.fetch(`/devices/aws/`, 'get', {awsVolumes}, "awsAvailableDevices", (data) => {
+	  var awsVolumes=this.state.awsVolumeIds;
+	  this.fetch(`/devices/aws/${id}`, 'get', {}, "awsAvailableDevices", (data) => {
 	        self.setState({
 	                deviceName: data?data[0]:[]
 	        });
@@ -109,19 +108,23 @@ let Snapshots = React.createClass({
   
   listSnapshots() {
     let component = this;
+    component.getDevices();
     let id = this.state.dropletId;
     if( this.state.dropletProvider === "aws" ) {
       id = this.state.volumeId;
     }
-    var awsVolumes=this.state.awsVolumeIds?this.state.awsVolumeIds:[];
-    this.fetch(`/snapshots/${this.state.dropletProvider}/`,'get', {awsVolumes}, 'snapshots', (data) => {
+    var awsVolumes=this.state.awsVolumeIds;
+    console.log("volumes "+awsVolumes);
+    this.fetch(`/snapshots/${this.state.dropletProvider}/`,'post',  awsVolumes, 'snapshots', (data) => {
       return data ? data.snapshots : []
     });
   },
 
   restore(imageId) {
 	    var instanceId = this.state.dropletId;
-	    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instanceId: instanceId, image: imageId, device: deviceName, volume: volumeId}, 'snapshotStatus');
+	    var deviceName = this.state.deviceName;
+	    var volumeId = this.state.volumeId;
+	    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instance: instanceId, image: imageId, device: deviceName, volume: volumeId}, 'snapshotStatus');
 
 	  },
 createNewSnapshot() {
@@ -180,7 +183,7 @@ createNewSnapshot() {
 					 <Input type='select' value={component.state.deviceName} onChange={() => { component.setState({deviceName: component.refs.device.getValue()})}}  label='Select device' ref={'device'}>
 					 	{devices}
 			         </Input>
-					<Button bsSize='large' onClick={() => restore(item.snapshotId, component.state.deviceName, item.volumeId)}>Restore</Button>
+					<Button bsSize='large' onClick={() => component.restore(item.snapshotId, component.state.deviceName, item.volumeId)}>Restore</Button>
 				
 			         </div>
 			      </Modal>} >

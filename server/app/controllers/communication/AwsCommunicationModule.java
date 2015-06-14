@@ -21,6 +21,7 @@ import com.amazonaws.services.ec2.model.AttachVolumeResult;
 import com.amazonaws.services.ec2.model.AvailabilityZone;
 import com.amazonaws.services.ec2.model.CreateSnapshotRequest;
 import com.amazonaws.services.ec2.model.CreateVolumeRequest;
+import com.amazonaws.services.ec2.model.DeleteSnapshotRequest;
 import com.amazonaws.services.ec2.model.DeleteVolumeRequest;
 import com.amazonaws.services.ec2.model.DescribeInstancesRequest;
 import com.amazonaws.services.ec2.model.DescribeSnapshotsRequest;
@@ -189,7 +190,7 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 		while (!amazonEC2Client.describeVolumes(describeVolumeRequest).getVolumes().get(0).getState().equals("available")) {
 			Thread.sleep(1000);
 		}
-
+		Logger.info("created volume");
 		// Detach old volume
 		DetachVolumeRequest detachVolumeRequest = new DetachVolumeRequest().withVolumeId(volumeId).withInstanceId(instanceId).withDevice(device);
 		amazonEC2Client.detachVolume(detachVolumeRequest);
@@ -200,14 +201,19 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 		while (!amazonEC2Client.describeVolumes(describeVolumeRequest).getVolumes().get(0).getState().equals("in-use")) {
 			Thread.sleep(1000);
 		}
-
+		Logger.info("detached volume");
 		// Attach new volume
 		AttachVolumeRequest attachVolumeRequest = new AttachVolumeRequest().withDevice(device).withVolumeId(volume.getVolumeId()).withInstanceId(instanceId);
 		AttachVolumeResult result = amazonEC2Client.attachVolume(attachVolumeRequest);
-
+		Logger.info("attached volume");
 		// Delete old volume
 		DeleteVolumeRequest deleteVolumeRequest = new DeleteVolumeRequest().withVolumeId(volumeId);
 		amazonEC2Client.deleteVolume(deleteVolumeRequest);
+		Logger.info("deleted volume");
+		// Delete snapshot
+		DeleteSnapshotRequest deleteSnapshotRequest = new DeleteSnapshotRequest().withSnapshotId(snapshotId);
+		amazonEC2Client.deleteSnapshot(deleteSnapshotRequest);
+		Logger.info("deleted snapshot");
 		return wrapResultAsPromise(ok(Json.toJson(result)));
 	}
 
@@ -231,24 +237,22 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 	@Override
 	public Promise<Result> listSnapshots() throws Exception {
 		JsonNode json = request().body().asJson();
-		if (json != null) {
-			ArrayNode jsonarr = (ArrayNode) json;
-			List<String> volumes = Lists.newArrayList();
 
-			for (int i = 0; i < jsonarr.size(); i++) {
-				volumes.add(jsonarr.get(i).asText());
-				Logger.error("volume id " + jsonarr.get(i).asText());
-			}
-			AmazonEC2Client amazonEC2Client = createEC2Client();
+		ArrayNode jsonarr = (ArrayNode) json;
+		List<String> volumes = Lists.newArrayList();
 
-			Filter filter = new Filter().withName("volume-id").withValues(volumes);
-
-			DescribeSnapshotsRequest describeSnapshotsRequest = new DescribeSnapshotsRequest().withFilters(filter);
-
-			ObjectNode responseJson = createListSnapshotsResponseJson(amazonEC2Client.describeSnapshots(describeSnapshotsRequest).getSnapshots());
-			return wrapResultAsPromise(ok(responseJson));
+		for (int i = 0; i < jsonarr.size(); i++) {
+			volumes.add(jsonarr.get(i).asText());
 		}
-		return wrapResultAsPromise(ok());
+		AmazonEC2Client amazonEC2Client = createEC2Client();
+
+		Filter filter = new Filter().withName("volume-id").withValues(volumes);
+
+		DescribeSnapshotsRequest describeSnapshotsRequest = new DescribeSnapshotsRequest().withFilters(filter);
+
+		ObjectNode responseJson = createListSnapshotsResponseJson(amazonEC2Client.describeSnapshots(describeSnapshotsRequest).getSnapshots());
+		return wrapResultAsPromise(ok(responseJson));
+
 	}
 
 	@Security.Authenticated(Secured.class)
