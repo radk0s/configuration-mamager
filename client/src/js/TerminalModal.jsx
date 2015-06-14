@@ -29,13 +29,14 @@ module.exports = React.createClass({
   },
   render() {
     let iframe;
+    let endpoint;
     if (this.state.terminalConf.port) {
-      let endpoint = `https://${window.location.hostname}:${this.state.terminalConf.port}/`;
+      endpoint = `https://${window.location.hostname}:${this.state.terminalConf.port}/`;
       console.log(endpoint);
       iframe = <iframe src={endpoint} width='100%' height='100%'></iframe>
     }
     return (
-      <Modal {...this.props} title='Modal heading' dialogClassName='modal-body' animation={false}>
+      <Modal {...this.props} title={`SSH (try open (${endpoint}) if fails)`} dialogClassName='modal-body' animation={false}>
         {iframe}
       </Modal>
     );
