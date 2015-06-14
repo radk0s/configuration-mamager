@@ -5,6 +5,8 @@ const async = require("async");
 const _ = require('underscore');
 const {Grid, Row, Col, Table, Button, Input} = require('react-bootstrap');
 const Loader = require('react-loader');
+const Modal = require('react-bootstrap').Modal;
+const ModalTrigger = require('react-bootstrap').ModalTrigger;
 
 
 let Snapshots = React.createClass({
@@ -17,12 +19,19 @@ let Snapshots = React.createClass({
       dropletId: "",
       dropletProvider: "",
       dropletValue: "",
+      awsAvailableDevices: [],
+      awsVolumeIds: [],
+      selectedVolume: "",
+      volumeId: "",
+      deviceName: "",
       snapshotsLoaded: false,
       loaded: false
     }
   },
   componentDidMount() {
-    this.listDroplets();
+
+    this.listDroplets();	
+    this.getDevices();
     this.listSnapshots();
     this.setState({
       interval: setInterval(this.listDroplets, 1000)
@@ -36,6 +45,13 @@ let Snapshots = React.createClass({
     return item.blockDeviceMappings[0]?item.blockDeviceMappings[0].ebs.volumeId:null;
   },
 
+  getVolumeIds(item){
+	return item.blockDeviceMappings.map(function(device){
+		  return device.ebs.volumeId;
+	  });
+  },
+
+  
   handleDropletNameChange() {
     var dropletData = this.refs.dropletId.getValue().split("_");
     var provider = dropletData[0];
@@ -47,14 +63,18 @@ let Snapshots = React.createClass({
     });
     if( provider === "aws") {
       this.setState({
-        volumeId: dropletData[2]
+    	  volumeId: dropletData[2],
+    	  awsVolumeIds: new Array(dropletData.slice(2)),
+    
       });
     }
+    
   },
 
   listDroplets() {
-    let component = this;
-    async.parallel({
+	
+	let component = this;
+	async.parallel({
         DO: function(callback){
           request
             .get('/instances/do')
@@ -88,11 +108,31 @@ let Snapshots = React.createClass({
           AWS: results.AWS,
           loaded: true
         },
+        component.getDevices(),
         component.listSnapshots(),
+        
         () => { console.log("results fetched")});
       });
+          component.getDevices(),
+       this.listSnapshots();
   },
 
+  getDevices() {
+	  let id = this.state.dropletId;
+	  let self = this;
+	    request.get(`/devices/aws/${id}`)
+	      .set('authToken', auth.getToken())
+	      .set('Accept', 'application/json')
+	      .end((err, res) => {
+	        self.setState({
+	
+	          awsAvailableDevices: res.body
+	         
+	        });
+	      });
+  },
+  
+  
   listSnapshots() {
       let component = this;
       let id = this.state.dropletId;
@@ -121,10 +161,11 @@ let Snapshots = React.createClass({
 
     var dropletsNamesAWS = this.state.AWS.map(function(item, index) {
       let item = item[0];
-      return <option value={`aws_${item.instanceId}_${component.getVolumeId(item)}`} key={`aws_${index}`}>{item.instanceId}</option>;
+      return <option value={`aws_${item.instanceId}_${component.getVolumeIds(item)}`} key={`aws_${index}`}>{item.instanceId}</option>;
     });
 
     var snapshots = this.state.snapshots.map(function(item) {
+console.log(item);
       if (component.state.dropletProvider && component.state.dropletProvider === "do") {
         return (
           <tr>
@@ -132,19 +173,35 @@ let Snapshots = React.createClass({
             <td>DO</td>
             <td>{item.created_at}</td>
             <td>
-              <Button bsSize='small' onClick={() => restore(item.id)}>Restore</Button>
+            	<Button bsSize='small' onClick={() => restore(item.id, component.state.deviceName, item.volumeId)}>Restore</Button>			              
             </td>
           </tr>
         )
       } else if(component.state.dropletProvider === "aws") {
-        console.log(item);
+     
+        var devices = component.state.awsAvailableDevices.map(function(item) {
+          return <option value={item}>{item} </option>;
+        });
+        console.log("devices")
+        console.log(devices)
         return (
           <tr>
             <td>{item.snapshotId}</td>
             <td>AWS</td>
             <td>{item.startTime}</td>
             <td>
-              <Button bsSize='small' onClick={() => restore(item.snapshotId)}>Restore</Button>
+                <ModalTrigger modal={<Modal  {...component.props} title={`Restore snapshot`}>
+					<div>
+					 <Input type='select' value={component.state.deviceName} onChange={() => { component.setState({deviceName: component.refs.device.getValue()})}}  label='Select device' ref={'device'}>
+					    <option value="" key="snapshot_placeholder" hidden>Please select...</option>
+					 	{devices}
+			         </Input>
+					<Button bsSize='large' onClick={() => restore(item.snapshotId, component.state.deviceName, item.volumeId)}>Restore</Button>
+				
+			         </div>
+			      </Modal>} >
+              	<Button bsSize='small' >Restore</Button>
+			</ModalTrigger>
             </td>
           </tr>
         )
@@ -152,25 +209,28 @@ let Snapshots = React.createClass({
 
     });
 
-    function restore(imageId) {
+    function restore(imageId, deviceName, volumeId) {
       var instanceId = component.state.dropletId;
       request
         .post(`/instances/${component.state.dropletProvider}/restore`)
         .set('authToken', auth.getToken())
         .set('Accept', 'application/json')
-        .send({ instanceId: instanceId, image: imageId})
+        .send({ instance: instanceId, image: imageId, device: deviceName, volume: volumeId})
         .end((err, res) => {
           console.log(err);
           console.log(res);
         });
     }
 
-    function createNewSnapshot() {
+    function createNewSnapshot() {  
+    	
       var provider = component.state.dropletProvider;
       var instanceId = component.state.dropletId;
       if( provider === "aws" ) {
-        instanceId = component.state.volumeId;
-      }
+        instanceId = component.state.selectedVolume;
+       }
+      console.log("volume "+instanceId);
+      
       var snapshotName = component.state.newSnapshotName;
 
       if( snapshotName && snapshotName != "" ) {
@@ -185,7 +245,20 @@ let Snapshots = React.createClass({
           });
       }
     }
-
+	 var volumes = component.state.awsVolumeIds.map(function(item) {
+	        return <option value={item}>{item} </option>;
+	      });
+	    var volumesSelect;
+	    if( component.state.dropletProvider === "aws" ) {
+	    	volumesSelect=  <Input type='select' value={component.state.selectedVolume} onChange={() => { component.setState({
+	    		selectedVolume: component.refs.selectedVolume.getValue()},  () => {   console.log("volume2 +"+this.state.selectedVolume)}
+	    	)}
+	    	}  label='Select volume' ref={'selectedVolume'}>
+	        <option value="" key="snapshot_placeholder" hidden>Please select...</option>
+	        {volumes}
+	        </Input>
+	      }
+	    console.log("volume2 +"+this.state.selectedVolume);
     return(
       <div>
         <Loader loaded={this.state.loaded}>
@@ -195,6 +268,7 @@ let Snapshots = React.createClass({
               {dropletsNamesDO}
               {dropletsNamesAWS}
             </Input>
+        {volumesSelect}
             <Input type='text' value={this.state.newSnapshotName} onChange={() => { this.setState({newSnapshotName: this.refs.newSnapshotName.getValue()})}} label='Create new snapshot for selected droplet:' ref={'newSnapshotName'}/>
             <Button bsSize='large' onClick={() => createNewSnapshot()}>Create new snapshot</Button>
           </div>

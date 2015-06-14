@@ -42,6 +42,7 @@ GET           /imageids/aws                     @controllers.communication.AwsCo
 GET           /instancetypes/aws                @controllers.communication.AwsCommunicationModule.listInstanceTypes()
 GET           /keynames/aws                     @controllers.communication.AwsCommunicationModule.listKeyNames()
 GET           /securitygroups/aws               @controllers.communication.AwsCommunicationModule.listSecurityGroups()
+GET           /devices/aws/:instanceId    		@controllers.communication.AwsCommunicationModule.listAvailableDevices(instanceId: String)
 
 GET           /configuration                    @controllers.configuration.ConfigurationController.getConfigurations()
 POST          /configuration                    @controllers.configuration.ConfigurationController.createConfiguration()
