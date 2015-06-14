@@ -65,7 +65,7 @@ let Snapshots = React.createClass({
     if( provider === "aws") {
     	  var volumes = dropletData[2].split(",");
     	  this.setState({
-    	  volumeId: dropletData[2],
+    	  volumeId: volumes[0],
     	  awsVolumeIds: volumes,
     	  selectedVolume: volumes[0]
       });
