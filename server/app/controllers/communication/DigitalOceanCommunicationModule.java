@@ -120,7 +120,7 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	@Override
 	public Promise<Result> restoreSnapshotOrBackup() throws Exception {
 		final int imageId = request().body().asJson().get("image").asInt();
-		ObjectNode body = Json.newObject().put("type", "snapshot").put("image", imageId);
+		ObjectNode body = Json.newObject().put("type", "restore").put("image", imageId);
 		return dropletActions(body);
 	}
 
