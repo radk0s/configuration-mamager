@@ -16,7 +16,7 @@ module.exports = React.createClass({
   render() {
     if (this.state.alertVisible) {
       return (
-        <Alert bsStyle='danger' onDismiss={this.handleAlertDismiss}>
+        <Alert bsStyle={this.props.type  || 'danger'} onDismiss={this.handleAlertDismiss}>
           <h4>Provider Error: {this.props.error.message}</h4>
           <p>{JSON.stringify(this.props.error)}</p>
         </Alert>

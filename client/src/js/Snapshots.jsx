@@ -5,10 +5,10 @@ const async = require("async");
 const _ = require('underscore');
 const {Grid, Row, Col, Table, Button, Input} = require('react-bootstrap');
 const Loader = require('react-loader');
-
+const FetchDataMixin = require('./FetchDataMixin.js');
 
 let Snapshots = React.createClass({
-  mixins: [React.addons.LinkedStateMixin],
+  mixins: [FetchDataMixin],
   getInitialState() {
     return {
       snapshots: [],
@@ -23,12 +23,11 @@ let Snapshots = React.createClass({
   },
   componentDidMount() {
     this.listDroplets();
-    this.listSnapshots();
     this.setState({
-      interval: setInterval(this.listDroplets, 1000)
+      interval: setInterval(this.listDroplets, 5000)
     });
   },
-  componentDidUnmount() {
+  componentWillUnmount() {
     clearInterval(this.interval);
   },
 
@@ -54,65 +53,55 @@ let Snapshots = React.createClass({
 
   listDroplets() {
     let component = this;
-    async.parallel({
-        DO: function(callback){
-          request
-            .get('/instances/do')
-            .set('authToken', auth.getToken())
-            .set('Accept', 'application/json')
-            .end((err, res) => {
-              if ( !_.isEmpty(res) && !_.isEmpty(res.body) && !_.isEmpty(res.body.droplets) ) {
-                callback(null, res.body.droplets);
-              } else {
-                callback(null, []);
-              }
-            });
-        },
-        AWS: function(callback){
-          request
-            .get('/instances/aws')
-            .set('authToken', auth.getToken())
-            .set('Accept', 'application/json')
-            .end((err, res) => {
-              if ( !_.isEmpty(res) && !_.isEmpty(res.body) ) {
-                callback(null, _.values(res.body));
-              } else {
-                callback(null, []);
-              }
-            });
-        }
-      },
-      function(err, results) {
-        component.setState({
-          DO: results.DO,
-          AWS: results.AWS,
-          loaded: true
-        },
-        component.listSnapshots(),
-        () => { console.log("results fetched")});
-      });
+
+    function listSnapshots() {
+      if(component.state.DOLoaded && component.state.AWSLoaded) {
+        if(component.state.dropletProvider == "") return;
+        component.listSnapshots()
+      }
+    }
+
+    this.fetch('/instances/do','get', {}, 'DO', (data) => {
+      return data.droplets
+    }, listSnapshots);
+
+    this.fetch('/instances/aws','get', {}, 'AWS', (data) => {
+      return _.values(data)
+    }, listSnapshots);
+
   },
 
   listSnapshots() {
-      let component = this;
-      let id = this.state.dropletId;
-      if( this.state.dropletProvider === "aws" ) {
-        id = this.state.volumeId;
-      }
-      request
-        .get(`/snapshots/${this.state.dropletProvider}/${id}`)
-        .set('authToken', auth.getToken())
-        .set('Accept', 'application/json')
-        .end((err, res) => {
-          component.setState({
-            snapshots: res.body?res.body.snapshots:[],
-            snapshotsLoaded: true
-          });
-        });
-    },
+    let component = this;
+    let id = this.state.dropletId;
+    if( this.state.dropletProvider === "aws" ) {
+      id = this.state.volumeId;
+    }
+
+    this.fetch(`/snapshots/${this.state.dropletProvider}/${id}`,'get', {}, 'snapshots', (data) => {
+      return data ? data.snapshots : []
+    });
+  },
+
+  restore(imageId) {
+    var instanceId = this.state.dropletId;
+    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instanceId: instanceId, image: imageId});
+
+  },
+  createNewSnapshot() {
+    var provider = this.state.dropletProvider;
+    var instanceId = this.state.dropletId;
+    if( provider === "aws" ) {
+      instanceId = this.state.volumeId;
+    }
+    var snapshotName = this.state.newSnapshotName;
+
+    if( snapshotName && snapshotName != "" ) {
+      this.fetch(`/instances/${provider}/snapshot`,'post', {instanceId: instanceId, name: snapshotName}, 'snapshotStatus');
+    }
+  },
 
   render() {
-
     var component = this;
 
     var dropletsNamesDO = this.state.DO.map(function(item, index) {
@@ -132,7 +121,7 @@ let Snapshots = React.createClass({
             <td>DO</td>
             <td>{item.created_at}</td>
             <td>
-              <Button bsSize='small' onClick={() => restore(item.id)}>Restore</Button>
+              <Button bsSize='small' onClick={() => this.restore(item.id)}>Restore</Button>
             </td>
           </tr>
         )
@@ -144,61 +133,29 @@ let Snapshots = React.createClass({
             <td>AWS</td>
             <td>{item.startTime}</td>
             <td>
-              <Button bsSize='small' onClick={() => restore(item.snapshotId)}>Restore</Button>
+              <Button bsSize='small' onClick={() => this.restore(item.snapshotId)}>Restore</Button>
             </td>
           </tr>
         )
       }
-
     });
 
-    function restore(imageId) {
-      var instanceId = component.state.dropletId;
-      request
-        .post(`/instances/${component.state.dropletProvider}/restore`)
-        .set('authToken', auth.getToken())
-        .set('Accept', 'application/json')
-        .send({ instanceId: instanceId, image: imageId})
-        .end((err, res) => {
-          console.log(err);
-          console.log(res);
-        });
-    }
-
-    function createNewSnapshot() {
-      var provider = component.state.dropletProvider;
-      var instanceId = component.state.dropletId;
-      if( provider === "aws" ) {
-        instanceId = component.state.volumeId;
-      }
-      var snapshotName = component.state.newSnapshotName;
-
-      if( snapshotName && snapshotName != "" ) {
-        request
-          .post(`/instances/${provider}/snapshot`)
-          .set('authToken', auth.getToken())
-          .set('Accept', 'application/json')
-          .send({instanceId: instanceId, name: snapshotName})
-          .end((err, res) => {
-            console.log(err);
-            console.log(res);
-          });
-      }
-    }
+    let button = this.state.newSnapshotName?<Button bsSize='large' onClick={() => this.createNewSnapshot()}>Create new snapshot</Button>:<div></div>
 
     return(
       <div>
-        <Loader loaded={this.state.loaded}>
+        <Loader loaded={this.state.DOLoaded && this.state.AWSLoaded}>
           <div style={{width: '40%', 'margin-left': 10}}>
             <Input type='select' value={this.state.dropletValue} onChange={this.handleDropletNameChange} ref={'dropletId'} label="Select droplet name: ">
               <option value="" key="snapshot_placeholder" hidden>Please select...</option>
               {dropletsNamesDO}
               {dropletsNamesAWS}
             </Input>
-            <Input type='text' value={this.state.newSnapshotName} onChange={() => { this.setState({newSnapshotName: this.refs.newSnapshotName.getValue()})}} label='Create new snapshot for selected droplet:' ref={'newSnapshotName'}/>
-            <Button bsSize='large' onClick={() => createNewSnapshot()}>Create new snapshot</Button>
+
           </div>
           <Loader loaded={this.state.snapshotsLoaded}>
+            <Input type='text' value={this.state.newSnapshotName} onChange={() => { this.setState({newSnapshotName: this.refs.newSnapshotName.getValue()})}} label='Create new snapshot for selected droplet:' ref={'newSnapshotName'}/>
+            {button}
             <Table responsive>
               <thead>
               <tr>
@@ -212,6 +169,7 @@ let Snapshots = React.createClass({
               {snapshots}
               </tbody>
             </Table>
+            <div>Latest Response: <pre>{JSON.stringify(this.state.snapshotStatus, null, 2)}</pre></div>
           </Loader>
         </Loader>
       </div>);

@@ -20,10 +20,11 @@ module.exports = React.createClass({
         username: this.props.username,
         host: this.props.host})
       .end((err, res) => {
-        console.log(res.body);
-        component.setState({
-          terminalConf: res.body
-        });
+        setTimeout(() => {
+          component.setState({
+            terminalConf: res.body
+          });
+        }, 3000);
       });
   },
   render() {

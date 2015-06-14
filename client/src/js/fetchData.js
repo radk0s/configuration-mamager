@@ -13,7 +13,7 @@ module.exports =
         .end((err, res) => {
           const result =  res && res.body || {};
           console.log(result.id == 'not_found');
-          if (result.id == 'not_found') reject(result);
+          if (result.id) reject(result);
           if (err) reject(err.message);
           if (res) resolve(res.body);
         })

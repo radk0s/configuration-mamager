@@ -24,7 +24,7 @@ let Backups = React.createClass({
       interval: setInterval(this.listDroplets, 3000)
     });
   },
-  componentDidUnmount() {
+  componentWillUnmount() {
     clearInterval(this.interval);
   },
 

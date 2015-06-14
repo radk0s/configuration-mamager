@@ -20,7 +20,7 @@ let Configurations = React.createClass({
       interval: setInterval(this.listConfigurations ,7000)
     });
   },
-  componentDidUnmount() {
+  componentWillUnmount() {
     clearInterval(this.interval);
   },
   listConfigurations() {
