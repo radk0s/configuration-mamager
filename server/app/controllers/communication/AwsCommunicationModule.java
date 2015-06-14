@@ -174,7 +174,7 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 		AmazonEC2Client amazonEC2Client = createEC2Client();
 
 		final String snapshotId = json.get("image").asText();
-		final String instanceId = json.get("instance").asText();
+		final String instanceId = json.get("instanceId").asText();
 		final String volumeId = json.get("volume").asText();
 		final String device = json.get("device").asText();
 

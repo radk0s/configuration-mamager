@@ -126,10 +126,10 @@ let Snapshots = React.createClass({
 	    var instanceId = this.state.dropletId;
 	    var deviceName = this.state.deviceName;
 	    var volumeId = this.state.volumeId;
-	    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instance: instanceId, image: imageId, device: deviceName, volume: volumeId}, 'snapshotStatus');
+	    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instanceId: instanceId, image: imageId, device: deviceName, volume: volumeId}, 'snapshotStatus');
 
 	  },
-createNewSnapshot() {
+  createNewSnapshot() {
 	    var provider = this.state.dropletProvider;
 	    var instanceId = this.state.dropletId;
 	    if( provider === "aws" ) {
