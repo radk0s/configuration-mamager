@@ -63,10 +63,11 @@ let Snapshots = React.createClass({
       snapshotsLoaded: false
     });
     if( provider === "aws") {
-      this.setState({
+    	  var volumes = dropletData[2].split(",");
+    	  this.setState({
     	  volumeId: dropletData[2],
-    	  awsVolumeIds: new Array(dropletData.slice(2)),
-    
+    	  awsVolumeIds: volumes,
+    	  selectedVolume: volumes[0]
       });
     }
     
@@ -127,8 +128,8 @@ let Snapshots = React.createClass({
 	      .end((err, res) => {
 	        self.setState({
 	
-	          awsAvailableDevices: res.body
-	         
+	          awsAvailableDevices: res.body,
+	          deviceName:  res.body?res.body[0]:[],
 	        });
 	      });
   },
@@ -194,7 +195,6 @@ console.log(item);
                 <ModalTrigger modal={<Modal  {...component.props} title={`Restore snapshot`}>
 					<div>
 					 <Input type='select' value={component.state.deviceName} onChange={() => { component.setState({deviceName: component.refs.device.getValue()})}}  label='Select device' ref={'device'}>
-					    <option value="" key="snapshot_placeholder" hidden>Please select...</option>
 					 	{devices}
 			         </Input>
 					<Button bsSize='large' onClick={() => restore(item.snapshotId, component.state.deviceName, item.volumeId)}>Restore</Button>
@@ -255,7 +255,6 @@ console.log(item);
 	    		selectedVolume: component.refs.selectedVolume.getValue()},  () => {   console.log("volume2 +"+this.state.selectedVolume)}
 	    	)}
 	    	}  label='Select volume' ref={'selectedVolume'}>
-	        <option value="" key="snapshot_placeholder" hidden>Please select...</option>
 	        {volumes}
 	        </Input>
 	      }
