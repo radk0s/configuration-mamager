@@ -6,8 +6,10 @@ const auth = require("./Auth.js");
 const moment = require('moment');
 const _ = require('underscore');
 const Loader = require('react-loader');
+const FetchDataMixin = require('./FetchDataMixin.js');
 
 module.exports =  React.createClass({
+  mixins: [FetchDataMixin],
   getInitialState() {
     return {
       provider: 'DIGITAL_OCEAN',
@@ -22,7 +24,7 @@ module.exports =  React.createClass({
       AWSKeys: [],
       AWSSecurityGroups: [],
       isDOSelectedFromConfiguration: false,
-      loaded: true,
+      createInstanceLoaded: true,
       configurations: ""
     }
   },
@@ -168,7 +170,7 @@ module.exports =  React.createClass({
   handleDOSubmit(event) {
 
     this.setState({
-      loaded: false
+      createInstanceLoaded: false
     });
 
     let component = this;
@@ -185,39 +187,26 @@ module.exports =  React.createClass({
       "ipv6": true,
       "user_data": null,
       "private_networking": null
-    }
+    };
 
-    request
-      .put('/instances/do')
-      .set('authToken', auth.getToken())
-      .set('Accept', 'application/json')
-      .send(configuration)
-      .end((err, res) => {
+    var configurationData = {
+      name: 'DO-' + moment().format(),
+      provider: 'DIGITAL_OCEAN',
+      data: JSON.stringify(configuration)
+    };
 
-        if(saveConfig === "yes") {
-          console.log("Saving configuration " + configuration.name);
-          request
-            .post('/configuration')
-            .set('authToken', auth.getToken())
-            .set('Accept', 'application/json')
-            .send({ name: 'DO-' + moment().format(),
-              provider: 'DIGITAL_OCEAN',
-              data: JSON.stringify(configuration)
-            })
-            .end((err, res) => {
-            });
+    this.fetch("/instances/do", 'put', configuration, (saveConfig === "yes") ? null : "createInstance", (data) => {}, () => {
+        if (saveConfig === "yes") {
+          component.fetch("/configuration", "post", configurationData, "createInstance", null, null);
         }
+      }
+    );
 
-        component.setState({
-          loaded: true
-        });
-
-      });
   },
   handleAWSSubmit (event) {
 
     this.setState({
-      loaded: false
+      createInstanceLoaded: false
     });
 
     let component = this;
@@ -235,31 +224,17 @@ module.exports =  React.createClass({
       securityGroup
     };
 
-    request
-      .put('/instances/aws')
-      .set('authToken', auth.getToken())
-      .set('Accept', 'application/json')
-      .send(configuration)
-      .end((err, res) => {
+    var configurationData = {
+      name: 'AWS-' + moment().format(),
+      provider: 'AWS',
+      data: JSON.stringify(configuration)
+    };
 
-        if(saveConfig === "yes") {
-          request
-            .post('/configuration')
-            .set('authToken', auth.getToken())
-            .set('Accept', 'application/json')
-            .send({ name: 'AWS-' + moment().format(),
-              provider: 'AWS',
-              data: JSON.stringify(configuration)
-            })
-            .end((err, res) => {
-              component.setState({
-                loaded: true
-              });
-            });
-        }
-      });
-
-
+    this.fetch("/instances/aws", 'put', configuration, (saveConfig === "yes") ? null : "createInstance", (data) => {}, () => {
+      if( saveConfig === "yes" ) {
+        component.fetch("/configuration", "post", configurationData, "createInstance", null, null);
+      }
+    });
 
   },
   render() {
@@ -368,7 +343,7 @@ module.exports =  React.createClass({
             {options}
           </Input>
         </div>
-        <Loader loaded={this.state.loaded}>
+        <Loader loaded={this.state.createInstanceLoaded}>
         {createForm}
         </Loader>
       </Modal>
