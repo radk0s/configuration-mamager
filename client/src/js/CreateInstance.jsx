@@ -130,6 +130,7 @@ module.exports =  React.createClass({
     this.setState(conf);
   },
   handleDOSubmit(event) {
+    event.preventDefault();
 
     this.setState({
       createInstanceLoaded: false
@@ -166,7 +167,7 @@ module.exports =  React.createClass({
 
   },
   handleAWSSubmit (event) {
-
+    event.preventDefault();
     this.setState({
       createInstanceLoaded: false
     });
