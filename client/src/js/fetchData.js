@@ -11,10 +11,11 @@ module.exports =
         .set('Accept', 'application/json')
         .send(filters)
         .end((err, res) => {
+
           const result =  res && res.body || {};
-          console.log(result.id == 'not_found');
+          console.log(err);
           if (result.id) reject(result);
-          if (err) reject(err.message);
+          if (err) reject(err);
           if (res) resolve(res.body);
         })
     });

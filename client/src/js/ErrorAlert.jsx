@@ -18,7 +18,7 @@ module.exports = React.createClass({
       return (
         <Alert bsStyle={this.props.type  || 'danger'} onDismiss={this.handleAlertDismiss}>
           <h4>Provider Error: {this.props.error.message}</h4>
-          <p>{JSON.stringify(this.props.error)}</p>
+          <pre>{JSON.stringify(this.props.error)}</pre>
         </Alert>
       );
     }

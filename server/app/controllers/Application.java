@@ -46,6 +46,8 @@ public class Application extends Controller {
 		final String userDOToken = user != null ? user.getDigitalOceanToken() : "";
 		final String userAWSAccessKey = user != null ? user.getAwsAccessKey() : "";
         final String userAWSSecretKey = user != null ? user.getAwsSecretKey() : "";
+        final String userAWSPem = user != null ? user.getAwsPrivateKey() : "";
+
 
         ObjectNode responseJson = Json.newObject();
         responseJson.put("userToken", userToken);
@@ -53,6 +55,7 @@ public class Application extends Controller {
         responseJson.put("userDOToken", userDOToken);
         responseJson.put("userAWSAccessKey", userAWSAccessKey);
         responseJson.put("userAWSSecretKey", userAWSSecretKey);
+        responseJson.put("privateKey", userAWSPem);
         return ok(responseJson);
 	}
 
@@ -69,7 +72,7 @@ public class Application extends Controller {
 			String cmd = "node /var/lib/jenkins/wetty/app.js --sslkey /var/lib/jenkins/wetty/key.pem --sslcert /var/lib/jenkins/wetty/cert.pem -p "+ port +" --sshhost "+ hostname +" --sshuser "+ username +" --sshauth password";
 			System.out.println(cmd);
 			Runtime.getRuntime().exec(cmd);
-			Thread.sleep(500);
+			Thread.sleep(4000);
 		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
 			return internalServerError("Unable to create ssh agent.");

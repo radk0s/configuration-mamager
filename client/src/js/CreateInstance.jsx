@@ -42,63 +42,25 @@ module.exports =  React.createClass({
   },
   componentDidMount() {
     let self = this;
-    request.get('/images/do')
-      .set('authToken', auth.getToken())
-      .end((err, res) => {
-        self.setState({
-          DOImages: res.body.images
-        });
-      });
-    request.get('/regions/do')
-      .set('authToken', auth.getToken())
-      .end((err, res) => {
-        self.setState({
-          allDORegions: res.body.regions
-        });
-      });
-    request.get('/sizes/do')
-      .set('authToken', auth.getToken())
-      .end((err, res) => {
-        self.setState({
-          allDOSizes: res.body.sizes
-        });
-      });
-    request.get('/imageids/aws')
-      .set('authToken', auth.getToken())
-      .end((err, res) => {
-        self.setState({
-          AWSImages: res.body
-        });
-        console.log("AWS ids:");
-        console.log(res.body);
-      });
-    request.get('/instancetypes/aws')
-      .set('authToken', auth.getToken())
-      .end((err, res) => {
-        self.setState({
-          AWSInstanceTypes: res.body
-        });
-        console.log("AWS instance types:");
-        console.log(res.body);
-      });
-    request.get('/keynames/aws')
-      .set('authToken', auth.getToken())
-      .end((err, res) => {
-        self.setState({
-          AWSKeys: res.body
-        });
-        console.log("AWS key names:");
-        console.log(res.body);
-      });
-    request.get('/securitygroups/aws')
-      .set('authToken', auth.getToken())
-      .end((err, res) => {
-        self.setState({
-          AWSSecurityGroups: res.body
-        });
-        console.log("AWS security groups:");
-        console.log(res.body);
-      });
+    this.fetch('/images/do','get', {}, 'DOImages', (data) => {
+      return data.images
+    });
+    //
+    this.fetch('/regions/do','get', {}, 'allDORegions', (data) => {
+      return data.regions
+    });
+
+    this.fetch('/sizes/do','get', {}, 'allDOSizes', (data) => {
+      return data.sizes
+    });
+
+    this.fetch('/imageids/aws','get', {}, 'AWSImages');
+
+    this.fetch('/instancetypes/aws','get', {}, 'AWSInstanceTypes');
+
+    this.fetch('/keynames/aws','get', {}, 'AWSKeys');
+
+    this.fetch('/securitygroups/aws', 'get', {}, 'AWSSecurityGroups');
   },
   componentDidUpdate() {
     this.render();
@@ -195,7 +157,7 @@ module.exports =  React.createClass({
       data: JSON.stringify(configuration)
     };
 
-    this.fetch("/instances/do", 'put', configuration, (saveConfig === "yes") ? null : "createInstance", (data) => {}, () => {
+    this.fetch("/instances/do", 'put', configuration, (saveConfig === "yes") ? null : "createInstance", null, () => {
         if (saveConfig === "yes") {
           component.fetch("/configuration", "post", configurationData, "createInstance", null, null);
         }
@@ -230,7 +192,7 @@ module.exports =  React.createClass({
       data: JSON.stringify(configuration)
     };
 
-    this.fetch("/instances/aws", 'put', configuration, (saveConfig === "yes") ? null : "createInstance", (data) => {}, () => {
+    this.fetch("/instances/aws", 'put', configuration, (saveConfig === "yes") ? null : "createInstance", null, () => {
       if( saveConfig === "yes" ) {
         component.fetch("/configuration", "post", configurationData, "createInstance", null, null);
       }

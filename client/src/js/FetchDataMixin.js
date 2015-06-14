@@ -23,7 +23,6 @@ module.exports = {
         }
       })
       .catch((error) => {
-        console.log(error);
         React.render(<Alert error={error}/>, document.getElementById('alert'));
       })
       .done();
