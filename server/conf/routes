@@ -23,7 +23,7 @@ POST          /instances/do/run                 @controllers.communication.Digit
 POST          /instances/do/stop                @controllers.communication.DigitalOceanCommunicationModule.stopInstance()
 POST          /instances/do/snapshot            @controllers.communication.DigitalOceanCommunicationModule.createSnapshot()
 POST          /instances/do/restore             @controllers.communication.DigitalOceanCommunicationModule.restoreSnapshotOrBackup()
-POST           /snapshots/do/			        @controllers.communication.DigitalOceanCommunicationModule.listSnapshots()
+POST          /snapshots/do/			        @controllers.communication.DigitalOceanCommunicationModule.listSnapshots()
 GET           /backups/do/:instanceId           @controllers.communication.DigitalOceanCommunicationModule.listBackups(instanceId: String)
 POST          /backups/do/disable               @controllers.communication.DigitalOceanCommunicationModule.disableBackups()
 GET           /regions/do                       @controllers.communication.DigitalOceanCommunicationModule.listRegions()

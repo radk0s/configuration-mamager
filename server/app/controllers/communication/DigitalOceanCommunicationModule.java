@@ -125,7 +125,7 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	 */
 	@Override
 	public Promise<Result> listSnapshots() throws Exception {
-		String instanceId = request().body().asText();
+		String instanceId = request().body().asJson().get("id").asText();
 		return listBackupsOrSnapshots(instanceId, "snapshots");
 	}
 
