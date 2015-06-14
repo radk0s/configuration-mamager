@@ -3,60 +3,42 @@ const auth = require("./Auth.js");
 const request = require('superagent');
 const {Grid, Row, Col, Table, Button} = require('react-bootstrap');
 const Loader = require('react-loader');
+const FetchDataMixin = require('./FetchDataMixin.js');
 
 
 let Configurations = React.createClass({
+  mixins: [FetchDataMixin],
   getInitialState() {
     return {
       configs: [],
-      loaded: false
+      configsLoaded: false
     }
   },
   componentDidMount() {
     this.listConfigurations();
     this.setState({
-      interval: setInterval(this.listConfigurations ,2000)
+      interval: setInterval(this.listConfigurations ,7000)
     });
   },
-  componentDidUnmount() {
+  componentWillUnmount() {
     clearInterval(this.interval);
   },
   listConfigurations() {
-    let component = this;
-    request
-      .get('/configuration')
-      .set('authToken', auth.getToken())
-      .set('Accept', 'application/json')
-      .end((err, res) => {
-        console.log(res.body);
-        component.setState({
-          configs: res.body,
-          loaded: true
-        });
-      });
+    this.fetch('/configuration','get', {}, 'configs');
   },
 
+  deleteConfig(name) {
+    this.fetch('/configuration','del', {name: name});
+  },
   render() {
-
-    function deleteConfig(name) {
-      request
-        .del(`/configuration`)
-        .set('authToken', auth.getToken())
-        .set('Accept', 'application/json')
-        .send({ name: name })
-        .end((err, res) => {
-          console.log(err);
-          console.log(res);
-        });
-    }
-
+    let component = this;
     var configs = this.state.configs.map(function(item) {
       return (
         <tr>
           <td>{item.name}</td>
           <td>{item.provider}</td>
           <td>
-            <Button bsSize='large' onClick={() => deleteConfig(item.name)}>Delete</Button>
+            <Button bsSize='large' onClick={() => component.deleteConfig(item.name)}>Delete</Button>
           </td>
         </tr>
       )
@@ -64,7 +46,7 @@ let Configurations = React.createClass({
 
     return(
       <div>
-        <Loader loaded={this.state.loaded}>
+        <Loader loaded={this.state.configsLoaded}>
         <Table responsive>
           <thead>
           <tr>
