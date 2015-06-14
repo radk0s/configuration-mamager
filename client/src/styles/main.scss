@@ -11,3 +11,11 @@
 .floating {
   float: left;
 }
+
+#alert {
+  position: absolute;
+  top: 100px;
+  left: 30%;
+  right: 30%;
+  z-index: 9999;
+}

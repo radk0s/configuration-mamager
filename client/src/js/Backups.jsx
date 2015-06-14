@@ -5,26 +5,23 @@ const async = require("async");
 const _ = require('underscore');
 const {Grid, Row, Col, Table, Button, Input, Alert} = require('react-bootstrap');
 const Loader = require('react-loader');
-
-
+const FetchDataMixin = require('./FetchDataMixin.js');
 
 let Backups = React.createClass({
-  mixins: [React.addons.LinkedStateMixin],
+  mixins: [React.addons.LinkedStateMixin, FetchDataMixin],
   getInitialState() {
     return {
       backups: [],
       DO: [],
       dropletName: "",
       backupsEnabled: false,
-      backupsLoaded: false,
-      loaded: false
+      backupsLoaded: false
     }
   },
   componentDidMount() {
     this.listDroplets();
-    this.listBackups();
     this.setState({
-      interval: setInterval(this.listDroplets, 2000)
+      interval: setInterval(this.listDroplets, 3000)
     });
   },
   componentDidUnmount() {
@@ -49,44 +46,19 @@ let Backups = React.createClass({
 
   listDroplets() {
     let component = this;
-    async.parallel({
-        DO: function(callback){
-          request
-            .get('/instances/do')
-            .set('authToken', auth.getToken())
-            .set('Accept', 'application/json')
-            .end((err, res) => {
-              if ( !_.isEmpty(res) && !_.isEmpty(res.body) && !_.isEmpty(res.body.droplets) ) {
-                callback(null, res.body.droplets);
-              } else {
-                callback(null, []);
-              }
-            });
-        }
-      },
-      function(err, results) {
-        component.setState({
-          DO: results.DO,
-          loaded: true
-        },
-        component.listBackups(),
-        () => { console.log("results fetched")});
-      });
-  },
+    this.fetch('/instances/do','get', {}, 'DO', (data) => {
+      return data.droplets
+    }, () => {
+      if (this.state.dropletName !== "") {
+        component.listBackups()
+      }
+    });
+    },
 
   listBackups() {
-    let component = this;
-    request
-      .get(`/backups/do/${this.state.dropletName}`)
-      .set('authToken', auth.getToken())
-      .set('Accept', 'application/json')
-      .end((err, res) => {
-        console.log(res.body);
-        component.setState({
-          backups: res.body?res.body.backups:[],
-          backupsLoaded: true
-        });
-      });
+    this.fetch(`/backups/do/${this.state.dropletName}`,'get', {}, 'backups', (data) => {
+      return data?data.backups:[]
+    });
   },
 
   render() {
@@ -144,7 +116,7 @@ let Backups = React.createClass({
         <Alert bsStyle='info'>
           Backups functionality is only provided for <strong>Digital Ocean</strong> machines.
         </Alert>
-        <Loader loaded={this.state.loaded}>
+        <Loader loaded={this.state.DOLoaded}>
           <div style={{width: '40%', 'margin-left': 10}}>
             <Input type='select' value={this.state.dropletName} onChange={this.handleDropletNameChange} ref={'dropletName'} label="Select droplet name: ">
               <option value="" key="backup_placeholder" hidden>Please select...</option>
