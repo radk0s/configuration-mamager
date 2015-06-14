@@ -8,6 +8,7 @@ const _ = require('underscore');
 const moment = require('moment');
 const CreateInstance = require('./CreateInstance.jsx');
 const TerminalModal = require('./TerminalModal.jsx');
+const AWSModal = require('./AWSModal.jsx');
 const Loader = require('react-loader');
 const FetchDataMixin = require('./FetchDataMixin.js');
 
@@ -103,8 +104,7 @@ let Machines = React.createClass({
               <Button className={'floating'} bsSize='small' onClick={() => runMachine('aws', item.instanceId)}>Run</Button>
               <Button className={'floating'} bsSize='small' onClick={() => stopMachine('aws', item.instanceId)}>Stop</Button>
               <Button className={'floating'} bsSize='small' onClick={() => deleteMachine('aws', item.instanceId)}>Terminate</Button>
-              <Input className={'floating short-input'} type='text' placeholder='username' valueLink={component.linkState('usernameAws'+ index)}/>
-              <ModalTrigger  className={'floating'} modal={<TerminalModal host={item.publicIpAddress} username={component.state.usernameAws+index}/>}>
+              <ModalTrigger  className={'floating'} modal={<AWSModal host={item.publicIpAddress}/>}>
                 <Button className={'floating'} bsStyle='primary' bsSize='small'>SSH</Button>
               </ModalTrigger>
             </td>
