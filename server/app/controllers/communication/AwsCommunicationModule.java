@@ -187,6 +187,7 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 		while (!amazonEC2Client.describeVolumes(describeVolumeRequest).getVolumes().get(0).getState().equals("available")) {
 			Thread.sleep(1000);
 		}
+
 		// Detach old volume
 		DetachVolumeRequest detachVolumeRequest = new DetachVolumeRequest().withVolumeId(volumeId).withInstanceId(instanceId).withDevice(device);
 		amazonEC2Client.detachVolume(detachVolumeRequest);

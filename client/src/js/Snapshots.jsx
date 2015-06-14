@@ -28,6 +28,7 @@ let Snapshots = React.createClass({
       loaded: false
     }
   },
+  
   componentDidMount() {
 
     this.listDroplets();	
