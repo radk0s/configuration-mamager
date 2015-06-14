@@ -89,12 +89,10 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 		return request.get().map(function);
 	}
 
-
 	/**
 	 * REQUEST BODY EXAMPLE : {"type": "snapshot", "name": "Nifty New Snapshot"}
 	 *
-	 * Documentation:
-	 * https://developers.digitalocean.com/documentation/v2/#snapshot-a-droplet
+	 * Documentation: https://developers.digitalocean.com/documentation/v2/#snapshot-a-droplet
 	 */
 	@Override
 	public Promise<Result> createSnapshot() throws Exception {
@@ -104,8 +102,7 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	}
 
 	/**
-	 * Documentation:
-	 * https://developers.digitalocean.com/documentation/v2/#disable-backups
+	 * Documentation: https://developers.digitalocean.com/documentation/v2/#disable-backups
 	 */
 	@Security.Authenticated(Secured.class)
 	public Promise<Result> disableBackups() throws Exception {
@@ -114,8 +111,7 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	}
 
 	/**
-	 * Documentation:
-	 * https://developers.digitalocean.com/documentation/v2/#restore-a-droplet
+	 * Documentation: https://developers.digitalocean.com/documentation/v2/#restore-a-droplet
 	 */
 	@Override
 	public Promise<Result> restoreSnapshotOrBackup() throws Exception {
@@ -125,17 +121,16 @@ public class DigitalOceanCommunicationModule extends Controller implements Provi
 	}
 
 	/**
-	 * Documentation:
-	 * https://developers.digitalocean.com/documentation/v2/#list-snapshots-for-a-droplet
+	 * Documentation: https://developers.digitalocean.com/documentation/v2/#list-snapshots-for-a-droplet
 	 */
 	@Override
-	public Promise<Result> listSnapshots(String instanceId) throws Exception {
+	public Promise<Result> listSnapshots() throws Exception {
+		String instanceId = request().body().asText();
 		return listBackupsOrSnapshots(instanceId, "snapshots");
 	}
 
 	/**
-	 * Documentation:
-	 * https://developers.digitalocean.com/documentation/v2/#list-backups-for-a-droplet
+	 * Documentation: https://developers.digitalocean.com/documentation/v2/#list-backups-for-a-droplet
 	 */
 	@Security.Authenticated(Secured.class)
 	public Promise<Result> listBackups(String instanceId) throws Exception {

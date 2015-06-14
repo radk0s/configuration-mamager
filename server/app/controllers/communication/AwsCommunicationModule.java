@@ -5,6 +5,7 @@ import java.util.List;
 
 import persistence.model.User;
 import persistence.services.UserPersistenceService;
+import play.Logger;
 import play.libs.F;
 import play.libs.F.Promise;
 import play.libs.Json;
@@ -43,6 +44,7 @@ import com.amazonaws.services.ec2.model.TerminateInstancesRequest;
 import com.amazonaws.services.ec2.model.TerminateInstancesResult;
 import com.amazonaws.services.ec2.model.Volume;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.Lists;
 import com.google.inject.Inject;
@@ -227,16 +229,26 @@ public class AwsCommunicationModule extends Controller implements ProviderCommun
 	}
 
 	@Override
-	public Promise<Result> listSnapshots(String volumeId) throws Exception {
+	public Promise<Result> listSnapshots() throws Exception {
+		JsonNode json = request().body().asJson();
+		if (json != null) {
+			ArrayNode jsonarr = (ArrayNode) json;
+			List<String> volumes = Lists.newArrayList();
 
-		AmazonEC2Client amazonEC2Client = createEC2Client();
+			for (int i = 0; i < jsonarr.size(); i++) {
+				volumes.add(jsonarr.get(i).asText());
+				Logger.error("volume id " + jsonarr.get(i).asText());
+			}
+			AmazonEC2Client amazonEC2Client = createEC2Client();
 
-		Filter filter = new Filter().withName("volume-id").withValues(volumeId);
+			Filter filter = new Filter().withName("volume-id").withValues(volumes);
 
-		DescribeSnapshotsRequest describeSnapshotsRequest = new DescribeSnapshotsRequest().withFilters(filter);
+			DescribeSnapshotsRequest describeSnapshotsRequest = new DescribeSnapshotsRequest().withFilters(filter);
 
-		ObjectNode json = createListSnapshotsResponseJson(amazonEC2Client.describeSnapshots(describeSnapshotsRequest).getSnapshots());
-		return wrapResultAsPromise(ok(json));
+			ObjectNode responseJson = createListSnapshotsResponseJson(amazonEC2Client.describeSnapshots(describeSnapshotsRequest).getSnapshots());
+			return wrapResultAsPromise(ok(responseJson));
+		}
+		return wrapResultAsPromise(ok());
 	}
 
 	@Security.Authenticated(Secured.class)

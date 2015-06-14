@@ -97,16 +97,13 @@ let Snapshots = React.createClass({
   getDevices() {
 	  let id = this.state.dropletId;
 	  let self = this;
-	    request.get(`/devices/aws/${id}`)
-	      .set('authToken', auth.getToken())
-	      .set('Accept', 'application/json')
-	      .end((err, res) => {
+	  var awsVolumes=this.state.awsVolumeIds?this.state.awsVolumeIds:[];
+	  this.fetch(`/devices/aws/`, 'get', {awsVolumes}, "awsAvailableDevices", (data) => {
 	        self.setState({
-	
-	          awsAvailableDevices: res.body,
-	          deviceName:  res.body?res.body[0]:[],
+	                deviceName: data?data[0]:[]
 	        });
-	      });
+	        return data ? data : []
+	    });
   },
   
   
@@ -116,13 +113,30 @@ let Snapshots = React.createClass({
     if( this.state.dropletProvider === "aws" ) {
       id = this.state.volumeId;
     }
-
-    this.fetch(`/snapshots/${this.state.dropletProvider}/${id}`,'get', {}, 'snapshots', (data) => {
+    var awsVolumes=this.state.awsVolumeIds?this.state.awsVolumeIds:[];
+    this.fetch(`/snapshots/${this.state.dropletProvider}/`,'get', {awsVolumes}, 'snapshots', (data) => {
       return data ? data.snapshots : []
     });
   },
 
+  restore(imageId) {
+	    var instanceId = this.state.dropletId;
+	    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instanceId: instanceId, image: imageId, device: deviceName, volume: volumeId}, 'snapshotStatus');
 
+	  },
+createNewSnapshot() {
+	    var provider = this.state.dropletProvider;
+	    var instanceId = this.state.dropletId;
+	    if( provider === "aws" ) {
+	      instanceId = this.state.selectedVolume;
+	    }
+	    var snapshotName = this.state.newSnapshotName;
+
+	    if( snapshotName && snapshotName != "" ) {
+	      this.fetch(`/instances/${provider}/snapshot`,'post', {instanceId: instanceId, name: snapshotName}, 'snapshotStatus');
+	    }
+	  },
+	  
   render() {
 
     var component = this;
@@ -137,7 +151,6 @@ let Snapshots = React.createClass({
     });
 
     var snapshots = this.state.snapshots.map(function(item) {
-console.log(item);
       if (component.state.dropletProvider && component.state.dropletProvider === "do") {
         return (
           <tr>
@@ -180,24 +193,6 @@ console.log(item);
 
     });
 
-
-  restore(imageId) {
-    var instanceId = this.state.dropletId;
-    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instanceId: instanceId, image: imageId, device: deviceName, volume: volumeId}, 'snapshotStatus');
-
-  },
-  createNewSnapshot() {
-    var provider = this.state.dropletProvider;
-    var instanceId = this.state.dropletId;
-    if( provider === "aws" ) {
-      instanceId = this.state.selectedVolume;
-    }
-    var snapshotName = this.state.newSnapshotName;
-
-    if( snapshotName && snapshotName != "" ) {
-      this.fetch(`/instances/${provider}/snapshot`,'post', {instanceId: instanceId, name: snapshotName}, 'snapshotStatus');
-    }
-  },
 
   
      let button = this.state.newSnapshotName?<Button bsSize='large' onClick={() => this.createNewSnapshot()}>Create new snapshot</Button>:<div></div>
