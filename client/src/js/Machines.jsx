@@ -8,7 +8,7 @@ const _ = require('underscore');
 const moment = require('moment');
 const CreateInstance = require('./CreateInstance.jsx');
 const TerminalModal = require('./TerminalModal.jsx');
-const AWSModal = require('./TerminalModal.jsx');
+const AWSModal = require('./AWSModal.jsx');
 const Loader = require('react-loader');
 const FetchDataMixin = require('./FetchDataMixin.js');
 
@@ -71,7 +71,7 @@ let Machines = React.createClass({
                 <td>DO</td>
                 <td>{item.name}</td>
                 <td>{item.image.distribution}</td>
-                <td>{item.networks.v4[0].ip_address}</td>
+                <td>{item.networks.v4[0] && item.networks.v4[0].ip_address}</td>
                 <td>{item.status}</td>
                 <td>{item.memory}</td>
                 <td>{moment(item.created_at).format("dddd, MMMM Do YYYY, h:mm:ss a")}</td>

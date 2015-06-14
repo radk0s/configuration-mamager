@@ -27,7 +27,7 @@ module.exports = React.createClass({
   },
   render() {
     return (
-      <Modal {...this.props} title='Modal heading' dialogClassName='modal-body' animation={false}>
+      <Modal {...this.props} title='AWS' dialogClassName='modal-body' animation={false}>
         <p>AWS support ssh only with Private key.</p>
         <pre>{this.state.privateKey}</pre>
       </Modal>
