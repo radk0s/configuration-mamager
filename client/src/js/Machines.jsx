@@ -9,9 +9,10 @@ const moment = require('moment');
 const CreateInstance = require('./CreateInstance.jsx');
 const TerminalModal = require('./TerminalModal.jsx');
 const Loader = require('react-loader');
+const FetchDataMixin = require('./FetchDataMixin.js');
 
 let Machines = React.createClass({
-  mixins: [React.addons.LinkedStateMixin],
+  mixins: [React.addons.LinkedStateMixin, FetchDataMixin],
   getInitialState() {
         return {
             DO: [],
@@ -22,99 +23,48 @@ let Machines = React.createClass({
     },
     componentDidMount() {
       let component = this;
-      request
-        .get('/configuration')
-        .set('authToken', auth.getToken())
-        .set('Accept', 'application/json')
-        .end((err, res) => {
-          component.setState({
-            confs: res.body
-          });
-        });
+      this.fetch(`/configuration`,'get', {}, 'confs');
       this.listMachines();
       this.setState({
         interval: setInterval(this.listMachines,2000)
       });
     },
     componentWillUnmount() {
-      clearInterval(this.interval);
+      clearInterval(this.state.interval);
     },
     listMachines() {
       let component = this;
 
-      async.parallel({
-          DO: function(callback){
-            request
-              .get('/instances/do')
-              .set('authToken', auth.getToken())
-              .set('Accept', 'application/json')
-              .end((err, res) => {
-                if ( !_.isEmpty(res) && !_.isEmpty(res.body) && !_.isEmpty(res.body.droplets) ) {
-                  callback(null, res.body.droplets);
-                } else {
-                  callback(null, []);
-                }
-              });
-          },
-          AWS: function(callback){
-            request
-              .get('/instances/aws')
-              .set('authToken', auth.getToken())
-              .set('Accept', 'application/json')
-              .end((err, res) => {
-                if ( !_.isEmpty(res) && !_.isEmpty(res.body) ) {
-                  callback(null, _.values(res.body));
-                } else {
-                  callback(null, []);
-                }
-              });
-          }
-        },
-        function(err, results) {
-          component.setState({
-            DO: results.DO,
-            AWS: results.AWS,
-            loaded: true
-          }, () => { console.log("results fetched")});
-        });
+      function listSnapshots() {
+        if(component.state.DOLoaded && component.state.AWSLoaded) {
+          if(component.state.dropletProvider == "") return;
+          component.listSnapshots()
+        }
+      }
+
+      this.fetch('/instances/do','get', {}, 'DO', (data) => {
+        return data.droplets
+      });
+
+      this.fetch('/instances/aws','get', {}, 'AWS', (data) => {
+        return _.values(data)
+      });
+
     },
     render() {
       let component = this;
       function deleteMachine(provider, id) {
-        request
-          .del(`/instances/${provider}`)
-          .set('authToken', auth.getToken())
-          .set('Accept', 'application/json')
-          .send({ instanceId: id})
-          .end((err, res) => {
-            console.log(err);
-            console.log(res);
-          });
+        component.fetch(`/instances/${provider}`,'del', { instanceId: id}, 'status');
+
       }
       function stopMachine(provider, id) {
-        request
-          .post(`/instances/${provider}/stop`)
-          .set('authToken', auth.getToken())
-          .set('Accept', 'application/json')
-          .send({ instanceId: id})
-          .end((err, res) => {
-            console.log(err);
-            console.log(res);
-          });
+        component.fetch(`/instances/${provider}/stop`,'post', { instanceId: id}, 'status');
       }
       function runMachine(provider, id) {
-        request
-          .post(`/instances/${provider}/run`)
-          .set('authToken', auth.getToken())
-          .set('Accept', 'application/json')
-          .send({ instanceId: id})
-          .end((err, res) => {
-            console.log(err);
-            console.log(res);
-          });
+        component.fetch(`/instances/${provider}/run`,'post', { instanceId: id}, 'status');
       }
 
-        var listDOItems = this.state.DO.map(function(item) {
+        var listDOItems = this.state.DO.map(function(item, index) {
             return (
               <tr>
                 <td>DO</td>
@@ -128,8 +78,8 @@ let Machines = React.createClass({
                   <Button className={'floating'} bsSize='small' onClick={() => runMachine('do', item.id)}>Run</Button>
                   <Button className={'floating'} bsSize='small' onClick={() => stopMachine('do', item.id)}>Stop</Button>
                   <Button className={'floating'} bsSize='small' onClick={() => deleteMachine('do', item.id)}>Terminate</Button>
-                  <Input className={'floating short-input'} type='text' placeholder='username' valueLink={component.linkState('usernameDo')}/>
-                  <ModalTrigger  className={'floating'} modal={<TerminalModal host={item.networks.v4[0].ip_address} username={component.state.usernameDo}/>}>
+                  <Input className={'floating short-input'} type='text' placeholder='username' valueLink={component.linkState('usernameDo'+index)}/>
+                  <ModalTrigger  className={'floating'} modal={<TerminalModal host={item.networks.v4[0] && item.networks.v4[0].ip_address} username={component.state.usernameDo+index}/>}>
                     <Button className={'floating'} bsStyle='primary' bsSize='small'>SSH</Button>
                   </ModalTrigger>
 
@@ -138,7 +88,7 @@ let Machines = React.createClass({
               )
         });
 
-      var listAWSItems = this.state.AWS.map(function(item) {
+      var listAWSItems = this.state.AWS.map(function(item, index) {
         let item = item[0];
         return (
           <tr>
@@ -153,8 +103,8 @@ let Machines = React.createClass({
               <Button className={'floating'} bsSize='small' onClick={() => runMachine('aws', item.instanceId)}>Run</Button>
               <Button className={'floating'} bsSize='small' onClick={() => stopMachine('aws', item.instanceId)}>Stop</Button>
               <Button className={'floating'} bsSize='small' onClick={() => deleteMachine('aws', item.instanceId)}>Terminate</Button>
-              <Input className={'floating short-input'} type='text' placeholder='username' valueLink={component.linkState('usernameAws')}/>
-              <ModalTrigger  className={'floating'} modal={<TerminalModal host={item.publicIpAddress} username={component.state.usernameAws}/>}>
+              <Input className={'floating short-input'} type='text' placeholder='username' valueLink={component.linkState('usernameAws'+ index)}/>
+              <ModalTrigger  className={'floating'} modal={<TerminalModal host={item.publicIpAddress} username={component.state.usernameAws+index}/>}>
                 <Button className={'floating'} bsStyle='primary' bsSize='small'>SSH</Button>
               </ModalTrigger>
             </td>
@@ -164,7 +114,7 @@ let Machines = React.createClass({
 
         return(
           <div>
-            <Loader loaded={this.state.loaded}>
+            <Loader loaded={this.state.DOLoaded && this.state.AWSLoaded}>
             <Table responsive>
               <thead>
                 <tr>
@@ -186,6 +136,7 @@ let Machines = React.createClass({
             <ModalTrigger modal={<CreateInstance title={`Create Instance`} confs={_.values(this.state.confs)}/>} >
               <Button bsSize='large'>Create instances</Button>
             </ModalTrigger>
+              <div>Latest Response: <pre>{JSON.stringify(this.state.status, null, 2)}</pre></div>
             </Loader>
           </div>);
     }

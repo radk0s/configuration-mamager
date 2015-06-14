@@ -28,7 +28,7 @@ let Snapshots = React.createClass({
     });
   },
   componentWillUnmount() {
-    clearInterval(this.interval);
+    clearInterval(this.state.interval);
   },
 
   getVolumeId(item) {
@@ -85,7 +85,7 @@ let Snapshots = React.createClass({
 
   restore(imageId) {
     var instanceId = this.state.dropletId;
-    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instanceId: instanceId, image: imageId}, 'snapshotStatus');
+    this.fetch(`/instances/${this.state.dropletProvider}/restore`,'post', { instanceId: instanceId, image: imageId}, 'status');
 
   },
   createNewSnapshot() {
@@ -97,7 +97,7 @@ let Snapshots = React.createClass({
     var snapshotName = this.state.newSnapshotName;
 
     if( snapshotName && snapshotName != "" ) {
-      this.fetch(`/instances/${provider}/snapshot`,'post', {instanceId: instanceId, name: snapshotName}, 'snapshotStatus');
+      this.fetch(`/instances/${provider}/snapshot`,'post', {instanceId: instanceId, name: snapshotName}, 'status');
     }
   },
 
@@ -169,7 +169,7 @@ let Snapshots = React.createClass({
               {snapshots}
               </tbody>
             </Table>
-            <div>Latest Response: <pre>{JSON.stringify(this.state.snapshotStatus, null, 2)}</pre></div>
+            <div>Latest Response: <pre>{JSON.stringify(this.state.status, null, 2)}</pre></div>
           </Loader>
         </Loader>
       </div>);

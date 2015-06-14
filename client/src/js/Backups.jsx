@@ -25,7 +25,7 @@ let Backups = React.createClass({
     });
   },
   componentWillUnmount() {
-    clearInterval(this.interval);
+    clearInterval(this.state.interval);
   },
 
   handleDropletNameChange() {
@@ -61,8 +61,18 @@ let Backups = React.createClass({
     });
   },
 
-  render() {
+  restore(imageId) {
+    var instanceId = this.state.dropletId;
 
+    this.fetch(`/instances/do/restore`,'post', { instanceId: instanceId, image: imageId}, 'status');
+  },
+
+  disableBackupsForDroplet() {
+    var instanceId = this.state.dropletName;
+    this.fetch(`/backups/do/disable`,'post', { instanceId: instanceId}, 'status');
+  },
+
+  render() {
     var component = this;
 
     var dropletsNamesDO = this.state.DO.map(function(item, index) {
@@ -79,37 +89,11 @@ let Backups = React.createClass({
           <td>DO</td>
           <td>{item.created_at}</td>
           <td>
-            <Button bsSize='small' onClick={() => restore(item.id)}>Restore</Button>
+            <Button bsSize='small' onClick={() => component.restore(item.id)}>Restore</Button>
           </td>
         </tr>
       )
     });
-
-    function restore(imageId) {
-      var instanceId = component.state.dropletId;
-      request
-        .post(`/instances/do/restore`)
-        .set('authToken', auth.getToken())
-        .set('Accept', 'application/json')
-        .send({ instanceId: instanceId, image: imageId})
-        .end((err, res) => {
-          console.log(err);
-          console.log(res);
-        });
-    }
-
-    function disableBackupsForDroplet() {
-      var instanceId = component.state.dropletName;
-      request
-        .post(`/backups/do/disable`)
-        .set('authToken', auth.getToken())
-        .set('Accept', 'application/json')
-        .send({ instanceId: instanceId})
-        .end((err, res) => {
-          console.log(err);
-          console.log(res);
-        });
-    }
 
     return(
       <div>
@@ -122,7 +106,7 @@ let Backups = React.createClass({
               <option value="" key="backup_placeholder" hidden>Please select...</option>
               {dropletsNamesDO}
             </Input>
-            {this.state.backupsEnabled ? <Button bsSize='large' onClick={() => disableBackupsForDroplet()}>Disable backups for droplet</Button> : ''}
+            {this.state.backupsEnabled ? <Button bsSize='large' onClick={() => this.disableBackupsForDroplet()}>Disable backups for droplet</Button> : ''}
           </div>
           <Loader loaded={this.state.backupsLoaded}>
             <Table responsive>
@@ -138,6 +122,7 @@ let Backups = React.createClass({
               {backups}
               </tbody>
             </Table>
+            <div>Latest Response: <pre>{JSON.stringify(this.state.status, null, 2)}</pre></div>
           </Loader>
         </Loader>
       </div>);

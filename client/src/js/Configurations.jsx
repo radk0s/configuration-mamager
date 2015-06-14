@@ -21,7 +21,7 @@ let Configurations = React.createClass({
     });
   },
   componentWillUnmount() {
-    clearInterval(this.interval);
+    clearInterval(this.state.interval);
   },
   listConfigurations() {
     this.fetch('/configuration','get', {}, 'configs');
