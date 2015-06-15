@@ -15,7 +15,7 @@ let Backups = React.createClass({
       DO: [],
       dropletName: "",
       backupsEnabled: false,
-      backupsLoaded: false
+      backupsLoaded: true
     }
   },
   componentDidMount() {

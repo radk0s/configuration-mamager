@@ -31,7 +31,7 @@ module.exports =  React.createClass({
 
   isConfigurationConnectedWithChosenProvider(name) {
     let provider = this.state.provider;
-    return (name.includes('AWS') && provider === 'AWS') || (name.includes('DO') && provider === 'DIGITAL_OCEAN');
+    return (name.indexOf('AWS') != -1 && provider === 'AWS') || (name.indexOf('DO') != -1 && provider === 'DIGITAL_OCEAN');
   },
   handleSelectChange() {
     this.setState({
@@ -56,7 +56,9 @@ module.exports =  React.createClass({
 
     this.fetch('/imageids/aws','get', {}, 'AWSImages');
 
-    this.fetch('/instancetypes/aws','get', {}, 'AWSInstanceTypes');
+    this.fetch('/instancetypes/aws','get', {}, 'AWSInstanceTypes', (data) => {
+      return _.without(data, 't1.micro');
+    });
 
     this.fetch('/keynames/aws','get', {}, 'AWSKeys');
 
@@ -132,9 +134,6 @@ module.exports =  React.createClass({
   handleDOSubmit(event) {
     event.preventDefault();
 
-    this.setState({
-      createInstanceLoaded: false
-    });
 
     let component = this;
 
@@ -168,9 +167,6 @@ module.exports =  React.createClass({
   },
   handleAWSSubmit (event) {
     event.preventDefault();
-    this.setState({
-      createInstanceLoaded: false
-    });
 
     let component = this;
 

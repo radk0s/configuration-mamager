@@ -25,14 +25,14 @@ let Snapshots = React.createClass({
       selectedVolume: "",
       volumeId: "",
       deviceName: "",
-      snapshotsLoaded: false,
+      snapshotsLoaded: true,
       loaded: false
     }
   },
-  
+
   componentDidMount() {
 
-    this.listDroplets();	
+    this.listDroplets();
 
     this.setState({
       interval: setInterval(this.listDroplets, 5000)
@@ -52,7 +52,7 @@ let Snapshots = React.createClass({
 	  });
   },
 
-  
+
   handleDropletNameChange() {
     var dropletData = this.refs.dropletId.getValue().split("_");
     var provider = dropletData[0];
@@ -70,7 +70,7 @@ let Snapshots = React.createClass({
     	  selectedVolume: volumes[0]
       });
     }
-    
+
   },
 
  listDroplets() {
@@ -106,13 +106,13 @@ let Snapshots = React.createClass({
 	        return data ? data : []
 	    });
   },
-  
-  
+
+
   listSnapshots() {
     let component = this;
-    if(component.state.dropletProvider == "aws") 
+    if(component.state.dropletProvider == "aws")
     component.getDevices();
-    
+
     let id = this.state.awsVolumeIds;
     if( this.state.dropletProvider === "do" ) {
     	 id = [this.state.dropletId];
@@ -141,7 +141,7 @@ let Snapshots = React.createClass({
 	      this.fetch(`/instances/${provider}/snapshot`,'post', {instanceId: instanceId, name: snapshotName}, 'status');
 	    }
 	  },
-	  
+
   render() {
 
     var component = this;
@@ -163,16 +163,16 @@ let Snapshots = React.createClass({
             <td>DO</td>
             <td>{item.created_at}</td>
             <td>
-            	<Button bsSize='small' onClick={() => component.restore(item.id, component.state.deviceName, item.volumeId)}>Restore</Button>			              
+            	<Button bsSize='small' onClick={() => component.restore(item.id, component.state.deviceName, item.volumeId)}>Restore</Button>
             </td>
           </tr>
         )
       } else if(component.state.dropletProvider === "aws") {
-     
+
         var devices = component.state.awsAvailableDevices.map(function(item) {
           return <option value={item}>{item} </option>;
         });
-   
+
         return (
           <tr>
             <td>{item.snapshotId}</td>
@@ -185,7 +185,7 @@ let Snapshots = React.createClass({
 					 	{devices}
 			         </Input>
 					<Button bsSize='large' onClick={() => component.restore(item.snapshotId, component.state.deviceName, item.volumeId)}>Restore</Button>
-				
+
 			         </div>
 			      </Modal>} >
               	<Button bsSize='small' >Restore</Button>
@@ -198,7 +198,7 @@ let Snapshots = React.createClass({
     });
 
 
-  
+
     var volumes = component.state.awsVolumeIds.map(function(item) {
       return <option value={item}>{item} </option>;
     });
@@ -211,7 +211,7 @@ let Snapshots = React.createClass({
       </Input>
     }
 	  let button = this.state.newSnapshotName?<Button bsSize='large' onClick={() => this.createNewSnapshot()}>Create new snapshot</Button>:<div></div>
-	
+
     return(
       <div>
          <Loader loaded={this.state.DOLoaded && this.state.AWSLoaded}>
